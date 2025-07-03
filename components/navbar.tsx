@@ -7,15 +7,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ variant = "default" }: NavbarProps) {
-  const menuItems =
-    variant === "service"
-      ? [
-          { label: "Products", hasDropdown: true },
-          { label: "Reviews", hasDropdown: false },
-          { label: "FAQ", hasDropdown: false },
-          { label: "Support", hasDropdown: false },
-        ]
-      : [
+  const menuItems =[
           { label: "Layanan", hasDropdown: true },
           { label: "Berita", hasDropdown: false },
           { label: "FAQ", hasDropdown: false },
