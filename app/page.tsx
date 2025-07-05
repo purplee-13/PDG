@@ -1,9 +1,9 @@
-import Navbar from "@/components/navbar"
+import CategoriesSection from "@/components/categories-section"
 import Footer from "@/components/footer"
 import HeroSection from "@/components/hero-section"
-import ServicesSection from "@/components/services-section"
-import CategoriesSection from "@/components/categories-section"
+import Navbar from "@/components/navbar"
 import NewsCarousel from "@/components/news-carousel"
+import ServicesSection from "@/components/services-section"
 import TourismSection from "@/components/tourism-section"
 
 export default function HomePage() {

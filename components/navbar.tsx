@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
 import { ChevronDown, Menu, X } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { useState } from "react"
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -13,22 +14,28 @@ export default function Navbar() {
     { title: "Destinasi Wisata", href: "/destinations" },
     { title: "Perdagangan", href: "/trading" },
     { title: "Data Kota", href: "/data" },
+    { title: "Pendidikan", href: "/pendidikan" },
+    { title: "Keuangan", href: "/keuangan" },
+    { title: "Kesehatan", href: "/kesehatan" },
+    { title: "Telekomunikasi", href: "/telekomunikasi" },
+    { title: "Industri", href: "/industri" },
+    { title: "Pariwisata", href: "/pariwisata" },
+    { title: "Geografis", href: "/geografis" },
+    { title: "Pemerintahan", href: "/pemerintahan" },
+    { title: "Sosial", href: "/sosial" },
+    { title: "Kependudukan", href: "/kependudukan" },
+    { title: "Transportasi", href: "/transportasi" },
+    { title: "Pertanian", href: "/pertanian" },
   ]
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
+    <nav className="bg-white shadow-sm sticky top-0 z-[9999]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0">
-              <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
-                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-6 h-6 bg-green-600 rounded-full"></div>
-                </div>
-              </div>
-            </Link>
-          </div>
+          <Link href="/" className="flex items-center space-x-2 text-green-700">
+            <Image src="/images/logoParepare.png" alt="Logo" width={30} height={30} />
+          </Link>
 
           {/* Navigation Links */}
           <div className="hidden md:block">

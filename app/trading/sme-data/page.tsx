@@ -1,6 +1,7 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { ArrowLeft, Download, Filter, Search, TrendingUp, Users, Building, MapPin } from "lucide-react"
+import Navbar from "@/components/navbar";
+import { ArrowLeft, Building, Download, Filter, MapPin, Search, TrendingUp, Users } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Data UMKM - Dinas Perdagangan Parepare",
@@ -71,6 +72,7 @@ const revenueRanges = ["Semua", "< 25 juta", "25-50 juta", "50-100 juta", "> 100
 export default function SMEDataPage() {
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar/>
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
