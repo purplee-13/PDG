@@ -1,5 +1,6 @@
 'use client';
 
+import Navbar from "@/components/navbar";
 import {
   ArcElement,
   BarElement,
@@ -9,41 +10,138 @@ import {
   LinearScale,
   Tooltip,
 } from 'chart.js';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Bar, Pie } from 'react-chartjs-2';
 
 Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const lokasiOptions = ['Pasar Sumpang', 'Pasar Lakessi'];
-const barangs = ['Beras', 'Cabai', 'Telur', 'Minyak'];
+const barangs = [
+  'Beras', 'Cabai', 'Telur', 'Minyak', 'Gula',
+  'Daging Ayam', 'Daging Sapi', 'Ikan', 'Bawang Merah', 'Bawang Putih'
+];
 const tanggalList = ['2025-07-01', '2025-07-02', '2025-07-03'];
 
-const dataHarga: Record<string, Record<string, number>> = {
-  '2025-07-01': { Beras: 10000, Cabai: 20000, Telur: 18000, Minyak: 14000 },
-  '2025-07-02': { Beras: 10200, Cabai: 22000, Telur: 18500, Minyak: 14500 },
-  '2025-07-03': { Beras: 10100, Cabai: 21000, Telur: 18200, Minyak: 14200 },
+// Struktur dataHarga baru: { [tanggal]: { [lokasi]: { [barang]: harga } } }
+const dataHarga: Record<
+  string,
+  Record<string, Record<string, number>>
+> = {
+  '2025-07-01': {
+    'Pasar Sumpang': {
+      Beras: 10000,
+      Cabai: 20000,
+      Telur: 18000,
+      Minyak: 14000,
+      Gula: 13000,
+      'Daging Ayam': 32000,
+      'Daging Sapi': 90000,
+      Ikan: 27000,
+      'Bawang Merah': 25000,
+      'Bawang Putih': 24000,
+    },
+    'Pasar Lakessi': {
+      Beras: 10200,
+      Cabai: 21000,
+      Telur: 18200,
+      Minyak: 14200,
+      Gula: 13200,
+      'Daging Ayam': 33000,
+      'Daging Sapi': 92000,
+      Ikan: 27500,
+      'Bawang Merah': 26000,
+      'Bawang Putih': 24500,
+    },
+  },
+  '2025-07-02': {
+    'Pasar Sumpang': {
+      Beras: 10100,
+      Cabai: 21500,
+      Telur: 18300,
+      Minyak: 14100,
+      Gula: 13100,
+      'Daging Ayam': 32500,
+      'Daging Sapi': 91000,
+      Ikan: 27200,
+      'Bawang Merah': 25500,
+      'Bawang Putih': 24200,
+    },
+    'Pasar Lakessi': {
+      Beras: 10300,
+      Cabai: 22000,
+      Telur: 18600,
+      Minyak: 14300,
+      Gula: 13300,
+      'Daging Ayam': 33500,
+      'Daging Sapi': 93000,
+      Ikan: 27800,
+      'Bawang Merah': 26200,
+      'Bawang Putih': 24800,
+    },
+  },
+  '2025-07-03': {
+    'Pasar Sumpang': {
+      Beras: 10200,
+      Cabai: 21200,
+      Telur: 18100,
+      Minyak: 13900,
+      Gula: 13200,
+      'Daging Ayam': 32100,
+      'Daging Sapi': 90500,
+      Ikan: 26800,
+      'Bawang Merah': 25200,
+      'Bawang Putih': 23900,
+    },
+    'Pasar Lakessi': {
+      Beras: 10400,
+      Cabai: 21800,
+      Telur: 18500,
+      Minyak: 14100,
+      Gula: 13400,
+      'Daging Ayam': 33800,
+      'Daging Sapi': 93500,
+      Ikan: 28000,
+      'Bawang Merah': 26500,
+      'Bawang Putih': 25000,
+    },
+  },
 };
 
 const topHargaNaik = [
-  { label: 'Cabai', price_change: 2000, color: '#f87171' },
-  { label: 'Telur', price_change: 700, color: '#facc15' },
+  { label: 'Cabai', price_change: 1000, color: '#60a5fa' },
+  { label: 'Daging Sapi', price_change: 1000, color: '#fbbf24' },
+  { label: 'Daging Ayam', price_change: 450, color: '#fbbf24' },
+  { label: 'Bawang Merah', price_change: 350, color: '#fbbf24' },
+  { label: 'Gula', price_change: 200, color: '#c084fc' },
 ];
 
 const topHargaTurun = [
-  { label: 'Minyak', price_change: 1000, color: '#60a5fa' },
-  { label: 'Beras', price_change: 500, color: '#34d399' },
+  { label: 'Telur', price_change: 120, color: '#60a5fa' },
+  { label: 'Cabai', price_change: 180, color: '#34d399' },
+  { label: 'Ikan', price_change: 90, color: '#fbbf24' },
+  { label: 'Gula', price_change: 75, color: '#fbbf24' },
+  { label: 'Bawang Putih', price_change: 110, color: '#c084fc' },
 ];
+
 
 export default function AnalisisPage() {
   const [selectedLokasi, setSelectedLokasi] = useState('Pasar Sumpang');
   const [tanggalAwal, setTanggalAwal] = useState('2025-07-01');
   const [tanggalAkhir, setTanggalAkhir] = useState('2025-07-03');
-
+  const router = useRouter();
   const hargaKemarin = dataHarga['2025-07-02'];
   const hargaHariIni = dataHarga['2025-07-03'];
 
   return (
     <div className="min-h-screen p-4 space-y-4 bg-gray-50">
+      <Navbar/>
+      <button
+          onClick={() => router.back()}
+          className="inline-flex items-center text-green-600 hover:text-green-700 transition border border-green-600 px-4 py-2 rounded-lg mb-4"
+        >
+          ← <span className="ml-2">Kembali</span>
+        </button>
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* KIRI */}
         <div className="w-full lg:w-[67.5%] flex flex-col space-y-4">
@@ -65,8 +163,8 @@ export default function AnalisisPage() {
           {/* Filter Tanggal */}
           <div className="p-4 space-y-2 bg-white shadow rounded-xl">
             <div className="flex items-center space-x-2 font-semibold text-gray-700">
-              <span className="material-symbols-outlined">calendar_month</span>
-              <span>Filter Tanggal</span>
+              <span className="material-symbols-outlined">Filter</span>
+              <span>Tanggal</span>
             </div>
             <form className="flex flex-col items-center gap-4 md:flex-row">
               <div className="flex items-center w-full px-4 py-2 bg-blue-100 rounded-xl md:w-1/2">
@@ -111,7 +209,7 @@ export default function AnalisisPage() {
                       <td className="sticky left-0 px-4 py-2 bg-white z-10">{tanggal}</td>
                       {barangs.map((barang) => (
                         <td key={barang} className="px-4 py-2">
-                          {dataHarga[tanggal]?.[barang]?.toLocaleString('id-ID') ?? '-'}
+                          {dataHarga[tanggal]?.[selectedLokasi]?.[barang]?.toLocaleString('id-ID') ?? '-'}
                         </td>
                       ))}
                     </tr>
@@ -221,48 +319,42 @@ export default function AnalisisPage() {
       <div className="p-4 bg-white rounded-lg shadow">
         <h2 className="mb-4 font-semibold text-gray-700">Perbandingan Harga Kemarin dan Hari Ini</h2>
         <div className="w-full overflow-x-auto">
-          <div className="min-w-[1000px] h-80">
-            <Bar
-              data={{
-                labels: barangs,
-                datasets: [
-                  {
-                    label: 'Kemarin',
-                    backgroundColor: '#f87171',
-                    data: barangs.map((item) => hargaKemarin[item]),
-                    barThickness: 30,
-                  },
-                  {
-                    label: 'Hari Ini',
-                    backgroundColor: '#34d399',
-                    data: barangs.map((item) => hargaHariIni[item]),
-                    barThickness: 30,
-                  },
-                ],
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    position: 'top',
-                  },
-                  tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                  },
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      callback: function (value: number | string) {
-                        return `Rp${Number(value).toLocaleString('id-ID')}`;
-                      },
+          <div className="w-full overflow-x-auto">
+            <div className="min-w-[1000px]" style={{ height: '300px' }}>
+              <Bar
+                data={{
+                  labels: barangs,
+                  datasets: [
+                    {
+                      label: 'Kemarin',
+                      backgroundColor: '#f87171',
+                      data: [9500, 19500, 17800, 13900 , 12900, 20900, 18200, 10200, 23000, 22000],
+                      barThickness: 20, // diperkecil
+                    },
+                    {
+                      label: 'Hari Ini',
+                      backgroundColor: '#34d399',
+                      data: [10200, 22000, 18500, 14500, 10200, 20000, 18200, 8200, 21300, 21000],
+                      barThickness: 20, // diperkecil
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false, // penting untuk kontrol tinggi manual
+                  plugins: {
+                    legend: {
+                      position: 'top',
                     },
                   },
-                },
-              }}
-            />
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                    },
+                  },
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

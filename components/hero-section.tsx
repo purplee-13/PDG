@@ -57,7 +57,7 @@ export default function HeroSection() {
       </div>
 
       {/* Desain Bawah */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 -mb-[2rem] sm:-mb-[2rem] lg:-mb-[1rem]">
+      <div className="absolute bottom-0 left-0 right-0 z-50 -mb-[1rem] sm:-mb-[1rem] lg:-mb-[1rem]">
         <Image
           src="/images/desain3.png"
           alt="Desain Bawah"

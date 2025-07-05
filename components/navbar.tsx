@@ -50,14 +50,13 @@ export default function Navbar() {
                     <ChevronDown className="w-4 h-4" />
                   </button>
 
-                  {/* Topics Dropdown */}
                   {topicsDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <div className="absolute top-full left-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 grid grid-cols-2 gap-2 px-2">
                       {topicCategories.map((category, index) => (
                         <Link
                           key={index}
                           href={category.href}
-                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
                           onClick={() => setTopicsDropdownOpen(false)}
                         >
                           {category.title}
@@ -100,7 +99,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t">
+        <div className="md:hidden bg-white border-t max-h-[80vh] overflow-y-auto">
           <div className="px-2 pt-2 pb-3 space-y-1">
             <div className="px-3 py-2 text-gray-700 font-medium">Topik</div>
             {topicCategories.map((category, index) => (
