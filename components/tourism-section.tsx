@@ -12,27 +12,27 @@ export default function TourismSection() {
     {
       id: "pelabuhan-nusantara",
       name: "Pelabuhan Nusantara Parepare",
-      image: "/images/pelabuhan-nusantara.png",
+      image: "/images/destinasi/pelabuhan.jpg",
     },
     {
       id: "monument-habibie",
       name: "Monument B.J. Habibie dan Ainun",
-      image: "/images/monument-habibie.png",
+      image: "/images/destinasi/monumen.jpeg",
     },
     {
       id: "ladoma-resort",
       name: "Ladoma Resort",
-      image: "/placeholder.svg?height=256&width=320",
+      image: "/images/destinasi/ladoma.jpg",
     },
     {
       id: "bulu-nepo",
       name: "Bulu Nepo",
-      image: "/placeholder.svg?height=256&width=320",
+      image: "/images/destinasi/bulu_nepo.jpg",
     },
     {
       id: "tonrangeng-river-side",
       name: "Tonrangeng River Side",
-      image: "/placeholder.svg?height=256&width=320",
+      image: "/images/destinasi/tonrangeng.jpg",
     },
   ]
 
