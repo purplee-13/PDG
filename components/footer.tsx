@@ -8,27 +8,28 @@ export default function Footer() {
           {/* Logo and Contact */}
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-8 h-8 bg-green-600 rounded-full"></div>
-                </div>
+              <div className="w-16 h-auto ">
+                <img
+                  src="/images/logoParepare.png"
+                  alt="Logo Parepare"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
-
             <div className="space-y-3">
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-gray-400 mt-1 flex-shrink-0" />
-                <p className="text-gray-300 text-sm">345 Faulconer Drive, Suite 4 • Charlottesville, CA, 12345</p>
+                <p className="text-gray-300 text-sm">Jl. Jenderal Sudirman No.78, Bumi Harapan, Kec. Bacukiki Bar., Kota Parepare, Sulawesi Selatan 91122</p>
               </div>
 
               <div className="flex items-center space-x-8">
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-300 text-sm">(123) 456-7890</span>
+                  <span className="text-gray-300 text-sm">(0421)21512</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Printer className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-300 text-sm">(123) 456-7890</span>
+                  <span className="text-gray-300 text-sm">(0421)21512</span>
                 </div>
               </div>
             </div>
