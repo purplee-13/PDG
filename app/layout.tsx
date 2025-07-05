@@ -1,20 +1,27 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { AuthProvider } from "@/lib/auth/auth-context"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: 'Parepare Dalam Genggaman',
-  description: 'Created with Pintesia',
-  generator: 'pintesia.com',
+  title: "Parepare Dalam Genggaman - Portal Digital Kota Parepare",
+  description: "Platform digital terpadu untuk layanan publik Kota Parepare",
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="id">
+      <body className={inter.className}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   )
 }
