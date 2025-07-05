@@ -1,12 +1,12 @@
 {
-  "name": "my-v0-project",
+  "name": "parepare-dalam-genggaman",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start -p $PORT -H $HOST"
+    "start": "next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

@@ -3,8 +3,8 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Parepare Dalam Genggaman',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  description: 'Created with Pintesia',
+  generator: 'pintesia.com',
 }
 
 export default function RootLayout({
