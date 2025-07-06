@@ -12,6 +12,7 @@ export default function Navbar() {
   const [layananMobileOpen, setLayananMobileOpen] = useState(false);
 
   const layananPublikSubmenu = [
+      { title: "Pengawasan", href: "/pengawasan" },
       { title: "Perdagangan", href: "/trading" },
       { title: "Pendidikan", href: "/services/category/pendidikan" },
       { title: "Keuangan", href: "/services/category/keuangan" },
