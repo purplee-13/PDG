@@ -7,7 +7,8 @@ import { useState } from "react"
 
 export default function ServicesSection() {
   const [startIndex, setStartIndex] = useState(0)
-  const itemsPerPage = 4
+  const itemsToShow = 4
+  const slideStep = 1
 
   const services = [
     {
@@ -104,16 +105,16 @@ export default function ServicesSection() {
   ]
 
   const handlePrev = () => {
-    setStartIndex((prev) => Math.max(prev - itemsPerPage, 0))
+    setStartIndex((prev) => Math.max(prev - slideStep, 0))
   }
 
   const handleNext = () => {
     setStartIndex((prev) =>
-      Math.min(prev + itemsPerPage, services.length - itemsPerPage)
+      Math.min(prev + slideStep, services.length - itemsToShow)
     )
   }
 
-  const visibleServices = services.slice(startIndex, startIndex + itemsPerPage)
+  // No need for visibleServices since we're using transform
 
   return (
     <section className="py-16 bg-white relative overflow-hidden">
@@ -153,9 +154,9 @@ export default function ServicesSection() {
 
           <button
             onClick={handleNext}
-            disabled={startIndex + itemsPerPage >= services.length}
+            disabled={startIndex + itemsToShow >= services.length}
             className={`absolute -right-6 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md border rounded-full p-2 transition hidden md:block ${
-              startIndex + itemsPerPage >= services.length
+              startIndex + itemsToShow >= services.length
                 ? "opacity-30 cursor-not-allowed"
                 : "hover:bg-gray-100"
             }`}
@@ -163,14 +164,21 @@ export default function ServicesSection() {
             <ArrowRight className="w-5 h-5 text-[#35AC3E]" />
           </button>
 
-          {/* Service Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {visibleServices.map((service) => (
-              <Link
-                key={service.id}
-                href={service.href}
-                className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition duration-300 group"
-              >
+                    {/* Service Grid */}
+          <div className="overflow-hidden">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out gap-6"
+              style={{
+                transform: `translateX(-${startIndex * (100 / itemsToShow)}%)`
+              }}
+            >
+               {services.map((service) => (
+                              <Link
+                  key={service.id}
+                  href={service.href}
+                  className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition duration-300 group flex-shrink-0"
+                  style={{ width: `calc(${100 / itemsToShow}% - ${24 * (itemsToShow - 1) / itemsToShow}px)` }}
+                >
                 <div className="w-14 h-14 bg-[#E6F7EA] rounded-xl flex items-center justify-center mx-auto mb-4">
                   <Image
                     src={service.icon}
@@ -184,7 +192,8 @@ export default function ServicesSection() {
                 </h3>
                 <p className="text-sm text-gray-600">{service.description}</p>
               </Link>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Tombol navigasi mobile (di bawah) */}
@@ -200,9 +209,9 @@ export default function ServicesSection() {
             </button>
             <button
               onClick={handleNext}
-              disabled={startIndex + itemsPerPage >= services.length}
+              disabled={startIndex + itemsToShow >= services.length}
               className={`bg-white shadow-md border rounded-full p-2 transition ${
-                startIndex + itemsPerPage >= services.length
+                startIndex + itemsToShow >= services.length
                   ? "opacity-30 cursor-not-allowed"
                   : "hover:bg-gray-100"
               }`}
