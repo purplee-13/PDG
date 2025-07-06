@@ -37,7 +37,7 @@ export default function ServicesSection() {
       name: "Perdagangan",
       description: "Layanan Perdagangan",
       icon: "/images/icon/IconPerdagangan.svg",
-      href: "/trading",
+      href: "/services/category/perdagangan",
     },
     {
       id: "4",
