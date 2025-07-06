@@ -78,9 +78,9 @@ export default function SMEDataPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <Link href="/services/category/perdagangan" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/trading" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
                 <ArrowLeft className="w-5 h-5 mr-2" />
-                Kembali ke Layanan Perdagangan
+                Kembali ke Trading
               </Link>
               <div className="h-6 w-px bg-gray-300" />
               <h1 className="text-xl font-semibold text-gray-900">Data UMKM</h1>

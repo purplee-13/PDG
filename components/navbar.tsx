@@ -13,7 +13,7 @@ export default function Navbar() {
 
   const layananPublikSubmenu = [
       { title: "Pengawasan", href: "/pengawasan" },
-      { title: "Perdagangan", href: "/services/category/perdagangan" },
+      { title: "Perdagangan", href: "/trading" },
       { title: "Pendidikan", href: "/services/category/pendidikan" },
       { title: "Keuangan", href: "/services/category/keuangan" },
       { title: "Kesehatan", href: "/services/category/kesehatan" },
