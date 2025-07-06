@@ -2,12 +2,12 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
 import { useAuth } from "@/lib/auth/auth-context"
-import { Eye, EyeOff, QrCode, Chrome } from "lucide-react"
+import { Chrome, Eye, EyeOff, QrCode } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("")
@@ -36,25 +36,39 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Left side - Welcome message with background */}
       <div className="hidden lg:flex lg:flex-1 relative">
+        {/* Background image */}
         <div className="absolute inset-0">
-          <Image src="/images/login-bg.png" alt="Parepare Background" fill className="object-cover" priority />
+          <Image
+            src="/images/bg.png"
+            alt="Parepare Background"
+            fill
+            className="object-cover"
+            priority
+          />
         </div>
-        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-          <div className="mb-8">
-            <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                <div className="w-12 h-12 bg-green-600 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-          <h1 className="text-4xl font-bold mb-4">
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-center items-center text-center px-12 text-white w-full">
+          <h1 className="text-4xl font-bold mb-8" style={{ color: '#FF9100' }}>
             Selamat Datang!
             <br />
             Parepare Dalam Genggaman
           </h1>
-          <p className="text-lg text-white/90 mb-8">Kemudahan untuk mendapatkan semua layanan dalam satu aplikasi</p>
+
+          <div className="mb-6 w-[300px] h-[300px] relative">
+            <Image
+              src="/images/IconLogin.png"
+              alt="Icon Login"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+
+          <p className="text-lg max-w-md " style={{ color: '#083358' }}>
+            Kemudahan untuk mendapatkan semua layanan dalam satu aplikasi
+          </p>
         </div>
       </div>
 

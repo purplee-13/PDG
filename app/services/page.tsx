@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { services, serviceCategories } from "@/lib/data/services"
-import { GraduationCap, Heart, CreditCard, ShoppingCart, ArrowRight } from "lucide-react"
-import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import Navbar from "@/components/navbar"
+import { serviceCategories, services } from "@/lib/data/services"
+import { ArrowLeft, ArrowRight, CreditCard, GraduationCap, Heart, ShoppingCart } from "lucide-react"
+import Link from "next/link"
 
 const iconMap = {
   GraduationCap,
@@ -15,8 +15,13 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="inline-flex items-center text-green-100 hover:text-white mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+                Kembali ke Layanan
+              </Link>
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Layanan Kota Parepare</h1>
           <p className="text-xl text-green-100">Temukan berbagai layanan publik yang tersedia untuk masyarakat</p>

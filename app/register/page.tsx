@@ -576,10 +576,40 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left side - Background */}
       <div className="hidden lg:flex lg:flex-1 relative">
-        <div className="absolute inset-0">
-          <Image src="/images/login-bg.png" alt="Parepare Background" fill className="object-cover" priority />
-        </div>
-      </div>
+              {/* Background image */}
+              <div className="absolute inset-0">
+                <Image
+                  src="/images/bg.png"
+                  alt="Parepare Background"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+      
+              {/* Content */}
+              <div className="relative z-10 flex flex-col justify-center items-center text-center px-12 text-white w-full">
+                <h1 className="text-4xl font-bold mb-8" style={{ color: '#FF9100' }}>
+                  Selamat Datang!
+                  <br />
+                  Parepare Dalam Genggaman
+                </h1>
+      
+                <div className="mb-6 w-[300px] h-[300px] relative">
+                  <Image
+                    src="/images/IconLogin.png"
+                    alt="Icon Login"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+      
+                <p className="text-lg max-w-md " style={{ color: '#083358' }}>
+                  Kemudahan untuk mendapatkan semua layanan dalam satu aplikasi
+                </p>
+              </div>
+            </div>
 
       {/* Right side - Registration form */}
       <div className="flex-1 lg:flex-none lg:w-[600px] bg-white flex items-center justify-center p-8">

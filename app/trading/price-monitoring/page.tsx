@@ -1,25 +1,211 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { useState } from "react"
-import { priceMonitoringData } from "@/lib/data/trading-services"
-import { ArrowLeft, ChevronDown, TrendingDown, TrendingUp } from "lucide-react"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import Navbar from "@/components/navbar";
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip,
+} from 'chart.js';
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useState } from 'react';
+import { Line } from 'react-chartjs-2';
 
-export default function PriceMonitoringPage() {
-  const [selectedCategory, setSelectedCategory] = useState("Kategori")
-  const [selectedItem, setSelectedItem] = useState("Barang")
+ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Tooltip);
 
-  const { commodity, markets } = priceMonitoringData
+const dummyData = [
+  {
+    kategori: 'Buah',
+    items: [
+      {
+        namaBarang: 'Pisang',
+        pasar: [
+          {
+            namaPasar: 'Pasar Sumpang',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 15000,
+            kemarin: 14800,
+            selisihPersen: 1.35,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [14000, 14200, 14500, 14700, 14600, 14800, 15000],
+          },
+          {
+            namaPasar: 'Pasar Lakessi',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 15200,
+            kemarin: 15100,
+            selisihPersen: 0.66,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [14300, 14450, 14700, 14900, 15000, 15100, 15200],
+          },
+        ],
+      },
+      {
+        namaBarang: 'Apel',
+        pasar: [
+          {
+            namaPasar: 'Pasar Sumpang',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 25500,
+            kemarin: 26000,
+            selisihPersen: -1.92,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [25000, 25200, 25800, 26000, 26000, 26000, 25500],
+          },
+          {
+            namaPasar: 'Pasar Lakessi',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 24500,
+            kemarin: 25000,
+            selisihPersen: -2,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [24000, 24200, 24600, 24800, 25000, 25000, 24500],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    kategori: 'Sayur',
+    items: [
+      {
+        namaBarang: 'Bayam',
+        pasar: [
+          {
+            namaPasar: 'Pasar Sumpang',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 7000,
+            kemarin: 6800,
+            selisihPersen: 2.94,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [6000, 6200, 6500, 6600, 6700, 6800, 7000],
+          },
+          {
+            namaPasar: 'Pasar Lakessi',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 7300,
+            kemarin: 7100,
+            selisihPersen: 2.82,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [6200, 6400, 6700, 6800, 7000, 7100, 7300],
+          },
+        ],
+      },
+      {
+        namaBarang: 'Wortel',
+        pasar: [
+          {
+            namaPasar: 'Pasar Sumpang',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 9200,
+            kemarin: 9000,
+            selisihPersen: 2.22,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [8700, 8800, 8900, 9000, 9000, 9000, 9200],
+          },
+          {
+            namaPasar: 'Pasar Lakessi',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 9400,
+            kemarin: 9200,
+            selisihPersen: 2.17,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [8900, 9000, 9100, 9200, 9200, 9200, 9400],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    kategori: 'Daging',
+    items: [
+      {
+        namaBarang: 'Daging Ayam',
+        pasar: [
+          {
+            namaPasar: 'Pasar Sumpang',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 38500,
+            kemarin: 38000,
+            selisihPersen: 1.32,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [36000, 36500, 37000, 37500, 37800, 38000, 38500],
+          },
+          {
+            namaPasar: 'Pasar Lakessi',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 39500,
+            kemarin: 39000,
+            selisihPersen: 1.28,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [36500, 37000, 37500, 38000, 38500, 39000, 39500],
+          },
+        ],
+      },
+      {
+        namaBarang: 'Daging Sapi',
+        pasar: [
+          {
+            namaPasar: 'Pasar Sumpang',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 121000,
+            kemarin: 120000,
+            selisihPersen: 0.83,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [118000, 119000, 119500, 120000, 120000, 120000, 121000],
+          },
+          {
+            namaPasar: 'Pasar Lakessi',
+            tanggal: 'Minggu, 07 Jul 2025',
+            hariIni: 122500,
+            kemarin: 121000,
+            selisihPersen: 1.24,
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            data: [119000, 120000, 120500, 121000, 121000, 121000, 122500],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export default function SobatHargaPage() {
+  const [selectedKategori, setSelectedKategori] = useState('');
+  const [selectedBarang, setSelectedBarang] = useState('');
+
+  const kategoriOptions = dummyData.map((d) => d.kategori);
+
+  const handleResetBarang = () => setSelectedBarang('');
+
+  // Filter data sesuai pilihan
+  let filteredItems = [];
+
+  if (!selectedKategori && !selectedBarang) {
+    // Semua data jika tidak ada filter
+    filteredItems = dummyData.flatMap((d) =>
+      d.items.map((item) => ({ ...item }))
+    );
+  } else if (selectedKategori && !selectedBarang) {
+    // Semua barang dalam 1 kategori
+    const found = dummyData.find((d) => d.kategori === selectedKategori);
+    filteredItems = found?.items.map((item) => ({ ...item })) || [];
+  } else if (selectedKategori && selectedBarang) {
+    // Barang spesifik
+    const found = dummyData.find((d) => d.kategori === selectedKategori);
+    const item = found?.items.find((i) => i.namaBarang === selectedBarang);
+    if (item) filteredItems = [{ ...item }];
+  }
+
+  const barangOptions =
+    dummyData.find((d) => d.kategori === selectedKategori)?.items.map((i) => i.namaBarang) || [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/trading" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
+    <div className="container mx-auto px-4 py-6">
+      <Navbar/>
+      <Link href="/trading" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 mt-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Kembali ke Layanan Perdagangan
         </Link>
@@ -29,161 +215,125 @@ export default function PriceMonitoringPage() {
           <p className="text-gray-600">Temukan Kemudahan dalam mengecek harga barang</p>
         </div>
 
-        {/* Filter Controls */}
-        <div className="flex flex-wrap gap-4 mb-8">
+      {/* Filter Dropdown */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        <div className="relative">
+          <select
+            className="px-6 py-2 border border-[#083358] rounded-xl bg-white text-[#083358] font-medium focus:ring-2 focus:ring-[#083358] focus:outline-none transition duration-200"
+            value={selectedKategori}
+            onChange={(e) => {
+              setSelectedKategori(e.target.value);
+              handleResetBarang();
+            }}
+          >
+            <option value="">Semua Kategori</option>
+            {kategoriOptions.map((kat, idx) => (
+              <option key={idx} value={kat}>
+                {kat}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedKategori && (
           <div className="relative">
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-white hover:bg-gray-50">
-              <span>{selectedCategory}</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="relative">
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-white hover:bg-gray-50">
-              <span>{selectedItem}</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Commodity Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-800">{commodity}</h2>
-        </div>
-
-        {/* Price Comparison Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {markets.map((market, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              {/* Market Header */}
-              <div className="bg-slate-800 text-white px-6 py-4">
-                <h3 className="text-lg font-semibold text-center">{market.market}</h3>
-              </div>
-
-              {/* Market Data */}
-              <div className="p-6">
-                <div className="text-center mb-4">
-                  <p className="text-sm text-gray-600 mb-4">
-                    Terakhir diperbarui: <span className="font-medium">{market.lastUpdated}</span>
-                  </p>
-
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 mb-1">Hari ini</p>
-                      <p className="text-lg font-bold text-gray-900">Rp. {market.data.today.toLocaleString()}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 mb-1">Kemarin</p>
-                      <p className="text-lg font-bold text-gray-900">Rp. {market.data.yesterday.toLocaleString()}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 mb-1">Selisih</p>
-                      <div className="flex items-center justify-center space-x-1">
-                        {market.data.difference < 0 ? (
-                          <TrendingDown className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <TrendingUp className="w-4 h-4 text-red-500" />
-                        )}
-                        <p
-                          className={`text-lg font-bold ${market.data.difference < 0 ? "text-green-600" : "text-red-600"}`}
-                        >
-                          {market.data.difference < 0 ? "- " : ""}Rp.{" "}
-                          {Math.abs(market.data.difference).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Price Change Alert */}
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-6">
-                    <div className="flex items-center space-x-2 text-orange-700">
-                      <TrendingDown className="w-4 h-4" />
-                      <span className="text-sm">
-                        Harga barang mengalami <span className="font-semibold">tidak berubah</span> 0.00% dari harga
-                        kemarin
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Price Chart */}
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={market.chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#666" }} />
-                      <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 12, fill: "#666" }}
-                        tickFormatter={(value) => `Rp${(value / 1000).toFixed(0)}k`}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="price"
-                        stroke="#f97316"
-                        strokeWidth={3}
-                        dot={{ fill: "#f97316", strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, stroke: "#f97316", strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="text-center mt-4">
-                  <p className="text-sm font-medium text-gray-700">Data Harga Penjualan Perhari</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Second Commodity Section */}
-        <div className="text-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-800">{commodity}</h2>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {markets.map((market, index) => (
-            <div
-              key={`second-${index}`}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+            <select
+              className="px-6 py-2 border border-[#083358] rounded-xl bg-white text-[#083358] font-medium focus:ring-2 focus:ring-[#083358] focus:outline-none transition duration-200"
+              value={selectedBarang}
+              onChange={(e) => setSelectedBarang(e.target.value)}
             >
-              <div className="bg-slate-800 text-white px-6 py-4">
-                <h3 className="text-lg font-semibold text-center">{market.market}</h3>
-              </div>
-              <div className="p-6">
-                <div className="text-center mb-4">
-                  <p className="text-sm text-gray-600 mb-4">
-                    Terakhir diperbarui: <span className="font-medium">{market.lastUpdated}</span>
-                  </p>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 mb-1">Hari ini</p>
-                      <p className="text-lg font-bold text-gray-900">Rp. {market.data.today.toLocaleString()}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 mb-1">Kemarin</p>
-                      <p className="text-lg font-bold text-gray-900">Rp. {market.data.yesterday.toLocaleString()}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 mb-1">Selisih</p>
-                      <div className="flex items-center justify-center space-x-1">
-                        <TrendingDown className="w-4 h-4 text-green-500" />
-                        <p className="text-lg font-bold text-green-600">
-                          - Rp. {Math.abs(market.data.difference).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              <option value="">Semua Barang</option>
+              {barangOptions.map((nama, idx) => (
+                <option key={idx} value={nama}>
+                  {nama}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
-      <Footer />
+
+      {/* Tampilkan semua item yang terfilter */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {filteredItems.map((item, index) =>
+          item.pasar.map((pasar, i) => {
+            const selisih = pasar.hariIni - pasar.kemarin;
+            const naik = selisih > 0;
+            const turun = selisih < 0;
+
+            const chartData = {
+              labels: pasar.labels,
+              datasets: [
+                {
+                  label: item.namaBarang,
+                  data: pasar.data,
+                  borderColor: '#083358',
+                  tension: 0.2,
+                },
+              ],
+            };
+
+            const chartOptions = {
+              responsive: true,
+              maintainAspectRatio: true,
+              aspectRatio: 2,
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+            };
+
+            return (
+              <div
+                key={`${index}-${i}`}
+                className="p-4 bg-white border shadow-lg rounded-xl w-full"
+              >
+                <div className="bg-[#083358] text-white text-center py-2 rounded-t-xl mb-4 text-lg font-semibold">
+                  {item.namaBarang} - {pasar.namaPasar}
+                </div>
+
+                <div className="text-center text-sm text-gray-600 mb-4">
+                  Terakhir diperbarui:{' '}
+                  <span className="font-semibold text-black">{pasar.tanggal}</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-sm text-center text-gray-700 mb-4">
+                  <div>
+                    <div className="font-semibold">Hari Ini</div>
+                    <div className="text-base font-bold text-black">
+                      Rp. {pasar.hariIni.toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-semibold">Kemarin</div>
+                    <div className="text-base font-bold text-black">
+                      Rp. {pasar.kemarin.toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-semibold">Selisih</div>
+                    <div
+                      className={`text-base font-bold ${
+                        naik ? 'text-green-600' : turun ? 'text-red-600' : 'text-gray-600'
+                      }`}
+                    >
+                      {selisih > 0 && '+'}
+                      {selisih.toLocaleString()} ({pasar.selisihPersen}%)
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-full">
+                  <Line data={chartData} options={chartOptions} />
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
-  )
+  );
 }
+

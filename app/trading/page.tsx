@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { tradingServices } from "@/lib/data/trading-services"
-import { TrendingUp, ShoppingCart, BarChart3, Building2, ArrowLeft } from "lucide-react"
-import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import Navbar from "@/components/navbar"
+import { tradingServices } from "@/lib/data/trading-services"
+import { ArrowLeft, BarChart3, Building2, ShoppingCart, TrendingUp } from "lucide-react"
+import Link from "next/link"
 
 const iconMap = {
   TrendingUp,
@@ -22,9 +22,11 @@ export default function TradingServicesPage() {
           Kembali ke Beranda
         </Link>
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-orange-500 mb-4">Dinas Perdagangan Kota Parepare</h1>
-          <p className="text-gray-700 leading-relaxed max-w-4xl">
+        <div className="mb-8 px-4 md:px-8 lg:px-12">
+          <h1 className="text-3xl md:text-4xl font-bold text-orange-500 mb-4 text-center md:text-left">
+            Dinas Perdagangan Kota Parepare
+          </h1>
+          <p className="text-gray-700 leading-relaxed text-justify">
             Dinas Perdagangan Kota Parepare adalah instansi pemerintah daerah yang menangani urusan di bidang{" "}
             <span className="font-semibold text-blue-600">Perdagangan</span>,{" "}
             <span className="font-semibold text-blue-600">Industri</span>, dan{" "}

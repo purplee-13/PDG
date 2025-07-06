@@ -44,7 +44,7 @@ export const destinations: Destination[] = [
       lng: 119.6210602676,
     },
     images: [
-      "/images/pelabuhan-nusantara.png",
+      "/images/destinasi/pelabuhan.jpg",
       "/placeholder.svg?height=400&width=600",
       "/placeholder.svg?height=400&width=600",
     ],
@@ -94,7 +94,7 @@ export const destinations: Destination[] = [
       lng: 119.62207936639304,
     },
     images: [
-      "/images/monument-habibie.png",
+      "/images/destinasi/monumen.jpeg",
       "/placeholder.svg?height=400&width=600",
       "/placeholder.svg?height=400&width=600",
     ],
@@ -134,6 +134,7 @@ export const destinations: Destination[] = [
       lng: 119.58,
     },
     images: [
+      "/images/destinasi/ladoma.jpg",
       "/placeholder.svg?height=400&width=600",
       "/placeholder.svg?height=400&width=600",
       "/placeholder.svg?height=400&width=600",
@@ -154,7 +155,7 @@ export const destinations: Destination[] = [
       "Menginap di resort",
     ],
     openingHours: "08:00 - 22:00 WIB",
-    ticketPrice: "Rp 15.000 - Rp 25.000",
+    ticketPrice: "Rp 5.000",
     contactInfo: {
       phone: "(0421) 22345",
       website: "www.ladomaresort.com",
@@ -183,6 +184,7 @@ export const destinations: Destination[] = [
       lng: 119.59,
     },
     images: [
+      "/images/destinasi/bulu_nepo.jpg",
       "/placeholder.svg?height=400&width=600",
       "/placeholder.svg?height=400&width=600",
       "/placeholder.svg?height=400&width=600",
@@ -217,6 +219,7 @@ export const destinations: Destination[] = [
       lng: 119.61,
     },
     images: [
+      "/images/destinasi/tonrangeng.jpg",
       "/placeholder.svg?height=400&width=600",
       "/placeholder.svg?height=400&width=600",
       "/placeholder.svg?height=400&width=600",
@@ -224,7 +227,7 @@ export const destinations: Destination[] = [
     facilities: ["Dermaga kayu", "Gazebo tepi sungai", "Area parkir", "Toilet umum", "Warung makan"],
     activities: ["Berperahu di sungai", "Memancing", "Fotografi alam", "Piknik keluarga", "Menikmati sunset"],
     openingHours: "06:00 - 18:00 WIB",
-    ticketPrice: "Rp 5.000 - Rp 10.000",
+    ticketPrice: "Gratis",
     contactInfo: {
       phone: "(0421) 23456",
     },

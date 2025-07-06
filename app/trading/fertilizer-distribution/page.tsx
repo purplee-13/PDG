@@ -1,164 +1,299 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useState } from "react"
-import { fertilizerDistributionData } from "@/lib/data/trading-services"
-import { ArrowLeft, ChevronDown } from "lucide-react"
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import LoadingSpinner from "@/components/LoadingSpinner";
+import Navbar from "@/components/navbar";
+import Chart from "chart.js/auto";
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from "react";
 
-export default function FertilizerDistributionPage() {
-  const [selectedDistrict, setSelectedDistrict] = useState("Kecamatan")
+// Data dummy per kecamatan
+const dummyDataPerKecamatan: Record<string, any> = {
+  Soreang: {
+    jumlahToko: 10,
+    totalDistribusi: 5200,
+    dataPupuk: {
+      UREA: 2000,
+      NPK: 2500,
+      "NPK-FK": 700,
+    },
+    dataTabel: [
+      {
+        nama_usaha: "Toko Soreang Jaya",
+        no_register: "SR-001",
+        UREA: 300,
+        NPK: 400,
+        NPK_FK: 100,
+      },
+    ],
+  },
+  Bacukiki: {
+    jumlahToko: 6,
+    totalDistribusi: 3400,
+    dataPupuk: {
+      UREA: 1300,
+      NPK: 1600,
+      "NPK-FK": 500,
+    },
+    dataTabel: [
+      {
+        nama_usaha: "Toko Bacukiki Sejahtera",
+        no_register: "BK-002",
+        UREA: 200,
+        NPK: 300,
+        NPK_FK: 100,
+      },
+    ],
+  },
+  "Bacukiki Barat": {
+    jumlahToko: 5,
+    totalDistribusi: 4100,
+    dataPupuk: {
+      UREA: 1600,
+      NPK: 1800,
+      "NPK-FK": 700,
+    },
+    dataTabel: [
+      {
+        nama_usaha: "Toko Barat Makmur",
+        no_register: "BB-003",
+        UREA: 250,
+        NPK: 350,
+        NPK_FK: 150,
+      },
+    ],
+  },
+  Ujung: {
+    jumlahToko: 8,
+    totalDistribusi: 4900,
+    dataPupuk: {
+      UREA: 1900,
+      NPK: 2200,
+      "NPK-FK": 800,
+    },
+    dataTabel: [
+      {
+        nama_usaha: "Toko Ujung Sentosa",
+        no_register: "UJ-004",
+        UREA: 280,
+        NPK: 360,
+        NPK_FK: 160,
+      },
+    ],
+  },
+};
 
-  const { summary, distribution, storeData } = fertilizerDistributionData
+export default function DistribusiPupukPage() {
+  const [kecamatan, setKecamatan] = useState("");
+  const [dataPupuk, setDataPupuk] = useState({ UREA: 0, NPK: 0, "NPK-FK": 0 });
+  const [jumlahToko, setJumlahToko] = useState(0);
+  const [totalDistribusi, setTotalDistribusi] = useState(0);
+  const [dataTable, setDataTable] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const pieChartRef = useRef<Chart | null>(null);
+  const lineChartRef = useRef<Chart | null>(null);
+  const router = useRouter();
 
-  const pieData = [{ name: "NPK", value: 36, color: "#ef4444" }]
+  useEffect(() => {
+  setIsLoading(true);
+  setTimeout(() => {
+    if (kecamatan === "") {
+      // Hitung total semua data
+      let totalPupuk = { UREA: 0, NPK: 0, "NPK-FK": 0 };
+      let totalToko = 0;
+      let totalDistribusi = 0;
+      let semuaDataTabel: any[] = [];
 
-  const barData = [{ year: "2025", total: 166 }]
+      for (const data of Object.values(dummyDataPerKecamatan)) {
+        totalPupuk.UREA += data.dataPupuk.UREA;
+        totalPupuk.NPK += data.dataPupuk.NPK;
+        totalPupuk["NPK-FK"] += data.dataPupuk["NPK-FK"];
+        totalToko += data.jumlahToko;
+        totalDistribusi += data.totalDistribusi;
+        semuaDataTabel = semuaDataTabel.concat(data.dataTabel);
+      }
+
+      setDataPupuk(totalPupuk);
+      setJumlahToko(totalToko);
+      setTotalDistribusi(totalDistribusi);
+      setDataTable(semuaDataTabel);
+    } else {
+      const data = dummyDataPerKecamatan[kecamatan];
+      if (data) {
+        setDataPupuk(data.dataPupuk);
+        setJumlahToko(data.jumlahToko);
+        setTotalDistribusi(data.totalDistribusi);
+        setDataTable(data.dataTabel);
+      }
+    }
+    setIsLoading(false);
+  }, 500);
+}, [kecamatan]);
+
+
+  useEffect(() => {
+    const pieCanvas = document.getElementById("pieChart") as HTMLCanvasElement;
+    const lineCanvas = document.getElementById("lineChart") as HTMLCanvasElement;
+
+    if (pieChartRef.current) pieChartRef.current.destroy();
+    if (lineChartRef.current) lineChartRef.current.destroy();
+
+    if (pieCanvas) {
+      pieChartRef.current = new Chart(pieCanvas, {
+        type: "pie",
+        data: {
+          labels: ["UREA", "NPK", "NPK-FK"],
+          datasets: [{
+            label: "Distribusi",
+            data: [dataPupuk.UREA, dataPupuk.NPK, dataPupuk["NPK-FK"]],
+            backgroundColor: ["#60A5FA", "#34D399", "#FBBF24"],
+          }],
+        },
+      });
+    }
+
+    if (lineCanvas) {
+      lineChartRef.current = new Chart(lineCanvas, {
+        type: "line",
+        data: {
+          labels: ["Jan", "Feb", "Mar", "Apr"],
+          datasets: [{
+            label: "Distribusi UREA",
+            data: [100, 200, 180, 220],
+            borderColor: "#3B82F6",
+            fill: false,
+          }],
+        },
+      });
+    }
+  }, [dataPupuk]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <div className="relative p-4 md:p-6">
+      <Navbar/>
+      <div className="p-4 md:p-4">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center text-green-600 hover:text-green-700 transition border border-green-600 px-4 py-2 rounded-lg mb-4"
+        >
+          ← <span className="ml-2">Kembali</span>
+        </button>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/trading" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Kembali ke Layanan Perdagangan
-        </Link>
+        <h1 className="text-3xl md:text-4xl font-bold text-orange-500 mb-4">
+          Sobat Distributor Kota Parepare
+        </h1>
+        <p className="text-gray-700 leading-relaxed mb-10">
+          Temukan Kemudahan dalam mengecek distribusi barang bersubsidi
+        </p>
+      </div>
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-orange-500 mb-2">Sobat Distributor Kota Parepare</h1>
-          <p className="text-gray-600">Temukan Kemudahan dalam mengecek distribusi barang bersubsidi</p>
+      {isLoading && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
+          <LoadingSpinner />
         </div>
+      )}
 
-        {/* Filter Controls */}
-        <div className="mb-8">
-          <div className="relative inline-block">
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-white hover:bg-gray-50">
-              <span>{selectedDistrict}</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${isLoading ? "opacity-30 pointer-events-none" : ""}`}>
+        {/* KIRI */}
+        <div className="space-y-6">
+          <div className="space-y-4 p-4 bg-white rounded-xl shadow">
+            <div className="bg-[#083458] text-white px-4 py-2 rounded-md flex justify-between items-center">
+              <span className="font-semibold">Analisis Pupuk</span>
+            </div>
 
-        {/* Distribution Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {distribution.map((item, index) => (
-            <div key={index} className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">{item.area}</span>
-                <span className="text-2xl font-bold text-gray-900">{item.count}</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 font-semibold text-gray-800">
+                <span className="text-base material-symbols-outlined">Filter</span>
+                <span>Kecamatan</span>
               </div>
-            </div>
-          ))}
-        </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Jumlah Toko</h3>
-            <p className="text-4xl font-bold text-gray-900 mb-1">{summary.totalStores}</p>
-            <p className="text-gray-600">Toko</p>
-          </div>
+              <select
+                className="bg-[#CDE4F7] text-black px-4 py-2 rounded-lg w-full cursor-pointer"
+                value={kecamatan}
+                onChange={(e) => setKecamatan(e.target.value)}
+              >
+                <option value="">-- Pilih Kecamatan --</option>
+                <option value="Soreang">Soreang</option>
+                <option value="Bacukiki">Bacukiki</option>
+                <option value="Bacukiki Barat">Bacukiki Barat</option>
+                <option value="Ujung">Ujung</option>
+              </select>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Jumlah Pupuk Terdistribusi</h3>
-            <p className="text-4xl font-bold text-gray-900 mb-1">{summary.totalFertilizerDistributed}</p>
-            <p className="text-gray-600">Sak</p>
-          </div>
-
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Informasi Penyaluran</h3>
-            <div className="h-32">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={30} outerRadius={50} dataKey="value">
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex items-center justify-center mt-2">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-500 rounded"></div>
-                <span className="text-sm text-gray-600">NPK</span>
+              <div className="grid grid-cols-2 gap-3">
+                {["UREA", "NPK-FK", "NPK"].map((item, i) => (
+                  <div
+                    key={i}
+                    className={`${
+                      item === "NPK" ? "col-span-2" : ""
+                    } flex justify-between items-center bg-[#CDE4F7] px-4 py-2 rounded-full text-black font-medium`}
+                  >
+                    <span>{item}</span>
+                    <span>{Number(dataPupuk[item] || 0).toLocaleString()}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
+
+          <div className="p-4 space-y-2 bg-white shadow rounded-xl text-center">
+            <h2 className="text-lg font-medium text-black">Informasi Penyaluran</h2>
+            <div className="flex justify-center">
+              <canvas id="pieChart" className="w-28 h-28" />
+            </div>
+          </div>
         </div>
 
-        {/* Distribution Table */}
-        <div className="bg-orange-50 rounded-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Distribusi Penyaluran Pupuk</h2>
+        {/* KANAN */}
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col justify-between h-32 p-4 bg-white shadow rounded-xl">
+              <p className="text-base font-semibold text-black">Jumlah Toko</p>
+              <h1 className="text-3xl font-extrabold text-black">{jumlahToko}</h1>
+              <p className="text-sm text-gray-500">Total toko</p>
+            </div>
 
-          <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+            <div className="flex flex-col justify-between h-32 p-4 bg-white shadow rounded-xl">
+              <p className="text-base font-semibold text-black">Jumlah Pupuk Terdistribusi</p>
+              <h1 className="text-3xl font-extrabold text-black">{totalDistribusi.toLocaleString()}</h1>
+              <p className="text-sm text-gray-500">Sak</p>
+            </div>
+          </div>
+
+          <div className="p-4 bg-white shadow rounded-xl">
+            <h2 className="mb-4 text-lg font-medium">Distribusi Pupuk</h2>
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-800 text-white">
-                  <tr>
-                    <th className="px-6 py-4 text-left font-semibold">Nama Usaha</th>
-                    <th className="px-6 py-4 text-left font-semibold">No. Register</th>
-                    <th className="px-6 py-4 text-center font-semibold" colSpan={3}>
-                      Jumlah Distribusi
-                    </th>
-                  </tr>
-                  <tr className="bg-slate-700 text-white">
-                    <th className="px-6 py-2"></th>
-                    <th className="px-6 py-2"></th>
-                    <th className="px-6 py-2 text-center font-medium">UREA</th>
-                    <th className="px-6 py-2 text-center font-medium">NPK</th>
-                    <th className="px-6 py-2 text-center font-medium">NPK-FK</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {storeData.map((store, index) => (
-                    <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                      <td className="px-6 py-4 font-medium text-gray-900">{store.name}</td>
-                      <td className="px-6 py-4 text-gray-700">{store.registrationNumber}</td>
-                      <td className="px-6 py-4 text-center text-gray-700">{store.urea}</td>
-                      <td className="px-6 py-4 text-center text-gray-700">{store.npk}</td>
-                      <td className="px-6 py-4 text-center text-gray-700">{store.npkFk}</td>
+              <div className="max-h-[320px] overflow-y-auto border border-gray-300 rounded-t-lg">
+                <table className="w-full table-auto border-collapse">
+                  <thead className="bg-[#083458] sticky top-0 z-10 text-white">
+                    <tr>
+                      <th className="p-3 border-r">Nama Usaha</th>
+                      <th className="p-3 border-r">No. Register</th>
+                      <th className="p-3 border-r">UREA</th>
+                      <th className="p-3 border-r">NPK</th>
+                      <th className="p-3">NPK-FK</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {dataTable.map((row: any, index: number) => (
+                      <tr key={index} className="border-t hover:bg-gray-100">
+                        <td className="p-2 capitalize">{row.nama_usaha}</td>
+                        <td className="p-2">{row.no_register}</td>
+                        <td className="p-2 text-center">{row.UREA}</td>
+                        <td className="p-2 text-center">{row.NPK}</td>
+                        <td className="p-2 text-center">{row["NPK_FK"]}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Growth Chart */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Grafik Perkembangan Pupuk</h2>
-
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#666" }} />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: "#666" }}
-                  label={{ value: "Total Penyaluran", angle: -90, position: "insideLeft" }}
-                />
-                <Bar dataKey="total" fill="#06b6d4" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="flex items-center justify-center mt-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-3 bg-cyan-500 rounded"></div>
-              <span className="text-sm text-gray-600">Total Penyaluran Pupuk per Tahun</span>
-            </div>
+          <div className="p-4 bg-white shadow rounded-xl">
+            <p className="mb-2 text-lg font-semibold">Grafik Perkembangan Pupuk</p>
+            <canvas id="lineChart" className="w-full" height="150" />
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
-  )
+  );
 }

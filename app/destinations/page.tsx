@@ -1,9 +1,9 @@
-import Link from "next/link"
-import Image from "next/image"
-import { destinations, destinationCategories } from "@/lib/data/destinations"
-import { MapPin, Clock, DollarSign, ArrowRight } from "lucide-react"
-import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import Navbar from "@/components/navbar"
+import { destinationCategories, destinations } from "@/lib/data/destinations"
+import { ArrowLeft, ArrowRight, Clock, DollarSign, MapPin } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
 
 export default function DestinationsPage() {
   return (
@@ -11,6 +11,12 @@ export default function DestinationsPage() {
       <Navbar />
 
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="inline-flex items-center text-green-100 hover:text-white mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+            Kembali ke Dashboard
+          </Link>
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Destinasi Wisata Parepare</h1>
           <p className="text-xl text-orange-100">Jelajahi keindahan dan keunikan tempat wisata di Kota Parepare</p>
