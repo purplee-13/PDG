@@ -1,7 +1,7 @@
 import Footer from "@/components/footer"
 import Navbar from "@/components/navbar"
 import { serviceCategories, services } from "@/lib/data/services"
-import { ArrowLeft, ArrowRight, CreditCard, GraduationCap, Heart, ShoppingCart } from "lucide-react"
+import { ArrowLeft, ArrowRight, BarChart3, Building2, CreditCard, GraduationCap, Heart, ShoppingCart, TrendingUp } from "lucide-react"
 import Link from "next/link"
 
 const iconMap = {
@@ -9,6 +9,9 @@ const iconMap = {
   Heart,
   CreditCard,
   ShoppingCart,
+  TrendingUp,
+  BarChart3,
+  Building2,
 }
 
 export default function ServicesPage() {

@@ -7,14 +7,15 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
 interface DestinationCategoryPageProps {
-  params: {
+  params: Promise<{
     category: string
-  }
+  }>
 }
 
-export default function DestinationCategoryPage({ params }: DestinationCategoryPageProps) {
-  const categoryInfo = destinationCategories.find((cat) => cat.id === params.category)
-  const destinations = getDestinationsByCategory(params.category)
+export default async function DestinationCategoryPage({ params }: DestinationCategoryPageProps) {
+  const resolvedParams = await params
+  const categoryInfo = destinationCategories.find((cat) => cat.id === resolvedParams.category)
+  const destinations = getDestinationsByCategory(resolvedParams.category)
 
   if (!categoryInfo || destinations.length === 0) {
     notFound()

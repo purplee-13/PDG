@@ -1,15 +1,13 @@
 import DestinationDetailPageClient from "./DestinationDetailPageClient"
+import { destinations } from "@/lib/data/destinations"
 
-export default function DestinationDetailPage({ params }: { params: { id: string } }) {
-  return <DestinationDetailPageClient params={params} />
+export default async function DestinationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
+  return <DestinationDetailPageClient params={resolvedParams} />
 }
 
 export function generateStaticParams() {
-  return [
-    { id: "pelabuhan-nusantara" },
-    { id: "monument-habibie" },
-    { id: "ladoma-resort" },
-    { id: "bulu-nepo" },
-    { id: "tonrangeng-river-side" },
-  ]
+  return destinations.map((destination) => ({
+    id: destination.id,
+  }))
 }

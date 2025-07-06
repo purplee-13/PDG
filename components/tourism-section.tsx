@@ -6,7 +6,9 @@ import Image from "next/image"
 import Link from "next/link"
 
 export default function TourismSection() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const [startIndex, setStartIndex] = useState(0)
+  const itemsToShow = 3
+  const slideStep = 1
 
   const destinations = [
     {
@@ -36,12 +38,14 @@ export default function TourismSection() {
     },
   ]
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % destinations.length)
+  const handleNext = () => {
+    setStartIndex((prev) =>
+      Math.min(prev + slideStep, destinations.length - itemsToShow)
+    )
   }
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + destinations.length) % destinations.length)
+  const handlePrev = () => {
+    setStartIndex((prev) => Math.max(prev - slideStep, 0))
   }
 
   return (
@@ -59,37 +63,56 @@ export default function TourismSection() {
         </div>
 
         <div className="relative">
-          <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
-            {destinations.map((destination, index) => (
-              <Link
-                key={destination.id}
-                href={`/destinations/${destination.id}`}
-                className="flex-none w-80 h-64 relative rounded-lg overflow-hidden group"
-              >
-                <Image
-                  src={destination.image || "/placeholder.svg"}
-                  alt={destination.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 text-white">
-                  <h3 className="font-semibold text-lg">{destination.name}</h3>
-                </div>
-              </Link>
-            ))}
+          <div className="overflow-hidden">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out gap-6"
+              style={{
+                transform: `translateX(-${startIndex * (100 / itemsToShow)}%)`
+              }}
+            >
+              {destinations.map((destination, index) => (
+                <Link
+                  key={destination.id}
+                  href={`/destinations/${destination.id}`}
+                  className="relative rounded-lg overflow-hidden group flex-shrink-0"
+                  style={{ 
+                    width: `calc(${100 / itemsToShow}% - ${24 * (itemsToShow - 1) / itemsToShow}px)`,
+                    height: '256px'
+                  }}
+                >
+                  <Image
+                    src={destination.image || "/placeholder.svg"}
+                    alt={destination.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <h3 className="font-semibold text-lg">{destination.name}</h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Navigation arrows */}
           <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-shadow"
+            onClick={handlePrev}
+            disabled={startIndex === 0}
+            className={`absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg transition-shadow ${
+              startIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:shadow-xl"
+            }`}
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
           </button>
           <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-shadow"
+            onClick={handleNext}
+            disabled={startIndex + itemsToShow >= destinations.length}
+            className={`absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg transition-shadow ${
+              startIndex + itemsToShow >= destinations.length
+                ? "opacity-30 cursor-not-allowed"
+                : "hover:shadow-xl"
+            }`}
           >
             <ChevronRight className="w-6 h-6 text-gray-600" />
           </button>

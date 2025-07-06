@@ -7,7 +7,9 @@ import Link from "next/link"
 import { getLatestNews, newsCategories } from "@/lib/data/news"
 
 export default function NewsCarousel() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const [startIndex, setStartIndex] = useState(0)
+  const itemsToShow = 3
+  const slideStep = 1
   const latestNews = getLatestNews(5)
 
   const formatDate = (dateString: string) => {
@@ -19,12 +21,14 @@ export default function NewsCarousel() {
     })
   }
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % latestNews.length)
+  const handleNext = () => {
+    setStartIndex((prev) =>
+      Math.min(prev + slideStep, latestNews.length - itemsToShow)
+    )
   }
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + latestNews.length) % latestNews.length)
+  const handlePrev = () => {
+    setStartIndex((prev) => Math.max(prev - slideStep, 0))
   }
 
   return (
@@ -42,13 +46,20 @@ export default function NewsCarousel() {
         </div>
 
         <div className="relative">
-          <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
-            {latestNews.map((article, index) => (
-              <Link
-                key={article.id}
-                href={`/news/${article.slug}`}
-                className="flex-none w-80 bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow group"
-              >
+          <div className="overflow-hidden">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out gap-6"
+              style={{
+                transform: `translateX(-${startIndex * (100 / itemsToShow)}%)`
+              }}
+            >
+              {latestNews.map((article, index) => (
+                <Link
+                  key={article.id}
+                  href={`/news/${article.slug}`}
+                  className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow group flex-shrink-0"
+                  style={{ width: `calc(${100 / itemsToShow}% - ${24 * (itemsToShow - 1) / itemsToShow}px)` }}
+                >
                 <div className="relative h-48">
                   <Image
                     src={article.image || "/placeholder.svg"}
@@ -82,19 +93,28 @@ export default function NewsCarousel() {
                   </div>
                 </div>
               </Link>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Navigation arrows */}
           <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-shadow"
+            onClick={handlePrev}
+            disabled={startIndex === 0}
+            className={`absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg transition-shadow ${
+              startIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:shadow-xl"
+            }`}
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
           </button>
           <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-shadow"
+            onClick={handleNext}
+            disabled={startIndex + itemsToShow >= latestNews.length}
+            className={`absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg transition-shadow ${
+              startIndex + itemsToShow >= latestNews.length
+                ? "opacity-30 cursor-not-allowed"
+                : "hover:shadow-xl"
+            }`}
           >
             <ChevronRight className="w-6 h-6 text-gray-600" />
           </button>

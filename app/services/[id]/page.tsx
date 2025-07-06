@@ -6,13 +6,14 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
 interface ServiceDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function ServiceDetailPage({ params }: ServiceDetailPageProps) {
-  const service = getServiceById(params.id)
+export default async function ServiceDetailPage({ params }: ServiceDetailPageProps) {
+  const resolvedParams = await params
+  const service = getServiceById(resolvedParams.id)
 
   if (!service) {
     notFound()
@@ -98,9 +99,18 @@ export default function ServiceDetailPage({ params }: ServiceDetailPageProps) {
             </div>
 
             {/* CTA Button */}
-            <button className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">
-              Ajukan Permohonan
-            </button>
+            {service.id.startsWith('perdagangan-') && service.id !== 'perdagangan-pajak' ? (
+              <Link 
+                href={`/trading/${service.id.replace('perdagangan-', '').replace('sobat-harga', 'price-monitoring').replace('distribusi-pupuk', 'fertilizer-distribution').replace('analisis-harga', 'price-analysis').replace('data-ikm', 'sme-data')}`}
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors text-center block"
+              >
+                Akses Layanan
+              </Link>
+            ) : (
+              <button className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">
+                Ajukan Permohonan
+              </button>
+            )}
 
             {/* Related Services */}
             {relatedServices.length > 0 && (

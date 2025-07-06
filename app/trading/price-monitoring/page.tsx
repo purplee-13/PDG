@@ -205,7 +205,7 @@ export default function SobatHargaPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <Navbar/>
-      <Link href="/trading" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 mt-6">
+              <Link href="/trading" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 mt-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Kembali ke Layanan Perdagangan
         </Link>
