@@ -39,6 +39,27 @@ export default function ServicesSection() {
       href: "/trading",
     },
     {
+      id: "14",
+      name: "Pengawasan",
+      description: "Layanan Pengawasan",
+      icon: "/images/icon/Pengawasan.svg",
+      href: "/services/category/Pengawasan",
+    },
+    {
+      id: "11",
+      name: "Kependudukan",
+      description: "Layanan Kependudukan",
+      icon: "/images/icon/IconKependudukan.svg",
+      href: "/kependudukan",
+    },
+    {
+      id: "15",
+      name: "Tenaga Kerja",
+      description: "Layanan Tenaga Kerja",
+      icon: "/images/icon/IconTenagaKerja.svg",
+      href: "/tenagaKerja",
+    },
+    {
       id: "4",
       name: "Telekomunikasi",
       description: "Layanan Telekomunikasi",
@@ -80,13 +101,7 @@ export default function ServicesSection() {
       icon: "/images/icon/IconSosial.svg",
       href: "/services/category/social",
     },
-    {
-      id: "11",
-      name: "Kependudukan",
-      description: "Layanan Kependudukan",
-      icon: "/images/icon/IconKependudukan.svg",
-      href: "/services/category/population",
-    },
+
     {
       id: "12",
       name: "Transportasi",
