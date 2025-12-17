@@ -25,7 +25,7 @@ export default function DashboardPage() {
 
           <p className="text-base text-gray-700 leading-relaxed text-justify">
             Platform digital yang menyajikan data ketenagakerjaan seperti keterampilan yang paling dibutuhkan, sektor industri dengan kebutuhan tenaga kerja tertinggi, dan tren pengangguran. Portal ini bertujuan membantu pengambilan kebijakan yang lebih tepat sasaran dalam meningkatkan kualitas dan penempatan tenaga kerja.
-          </p>
+          </p>d
         </div>
       </div>
 
