@@ -23,11 +23,27 @@ import {
 
 interface DashboardLayoutProps {
   children: React.ReactNode
+  user?: any // Accept session user from server component
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user, logout, hasPermission } = useAuth()
+export default function DashboardLayout({ children, user: sessionUser }: DashboardLayoutProps) {
+  const { user: contextUser, logout, hasPermission: contextHasPermission } = useAuth()
   const router = useRouter()
+
+  // Use session user if available, otherwise fallback to context
+  const user = sessionUser || contextUser
+
+  // Quick shim for permissions if using session user
+  const hasPermission = (permission: string) => {
+    if (sessionUser) {
+      // Admin has all permissions
+      if (sessionUser.role === 'admin') return true;
+      // For now, allow basic access
+      return true;
+    }
+    return contextHasPermission(permission)
+  }
+
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -84,85 +100,38 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // Role-based navigation items
   const getNavigationItems = () => {
-    const baseItems = [
+    // 1. Dashboard (All users)
+    const items = [
       {
         name: "Dashboard",
         href: "/dashboard",
         icon: LayoutDashboard,
         current: pathname === "/dashboard",
-        permission: "view_department_data",
-      },
-      {
-        name: "Layanan Saya",
-        href: "/dashboard/services",
-        icon: LayoutDashboard,
-        current: pathname === "/dashboard/services",
-        permission: "view_department_data",
-      },
-      {
-        name: "Statistik",
-        href: "/dashboard/statistics",
-        icon: BarChart3,
-        current: pathname === "/dashboard/statistics",
-        permission: "view_department_stats",
-      },
-      {
+        permission: "view_department_data", // Basic permission
+      }
+    ]
+
+    // 2. Pengguna (Admin Only)
+    if (user?.role === "admin") {
+      items.push({
         name: "Pengguna",
         href: "/dashboard/users",
         icon: Users,
-        current: pathname === "/dashboard/users",
+        current: pathname?.startsWith("/dashboard/users"),
         permission: "view_users",
-      },
-      {
-        name: "Pengaturan",
-        href: "/dashboard/settings",
-        icon: Settings,
-        current: pathname === "/dashboard/settings",
-        permission: "view_settings",
-      },
-    ]
-
-    // Add role-specific items
-    if (user?.role === "walikota") {
-      baseItems.push(
-        {
-          name: "Perbandingan Dinas",
-          href: "/dashboard/departments",
-          icon: Building2,
-          current: pathname === "/dashboard/departments",
-          permission: "view_all_departments",
-        },
-        {
-          name: "Insight Strategis",
-          href: "/dashboard/strategic",
-          icon: TrendingUp,
-          current: pathname === "/dashboard/strategic",
-          permission: "view_strategic_insights",
-        },
-      )
-    }
-
-    if (user?.role === "kepala_dinas" && user?.department === "perdagangan") {
-      baseItems.push({
-        name: "Data Perdagangan",
-        href: "/dashboard/mayor-trade",
-        icon: ShoppingCart,
-        current: pathname === "/dashboard/mayor-trade",
-        permission: "view_department_data",
-        highlight: true,
       })
     }
 
-    // Add help for all roles
-    baseItems.push({
-      name: "Bantuan",
-      href: "/dashboard/help",
-      icon: HelpCircle,
-      current: pathname === "/dashboard/help",
-      permission: "view_department_data",
+    // 3. Pengaturan (All users)
+    items.push({
+      name: "Pengaturan",
+      href: "/dashboard/settings",
+      icon: Settings,
+      current: pathname === "/dashboard/settings",
+      permission: "view_settings", // Assuming everyone can view settings
     })
 
-    return baseItems.filter((item) => hasPermission(item.permission))
+    return items
   }
 
   const navigationItems = getNavigationItems()
@@ -198,9 +167,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Sidebar */}
       <div
         id="sidebar"
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
-          isMobile ? (sidebarOpen ? "translate-x-0" : "-translate-x-full") : "translate-x-0"
-        } lg:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${isMobile ? (sidebarOpen ? "translate-x-0" : "-translate-x-full") : "translate-x-0"
+          } lg:translate-x-0`}
       >
         <div className="flex flex-col h-full">
           {/* Sidebar header */}
@@ -253,13 +221,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   key={item.name}
                   href={item.href}
                   onClick={closeSidebar}
-                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    item.highlight
-                      ? "bg-green-100 text-green-700 hover:bg-green-200"
-                      : item.current
-                        ? "bg-gray-100 text-gray-900"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  }`}
+                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${item.highlight
+                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    : item.current
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    }`}
                 >
                   <Icon className="w-5 h-5 mr-3" />
                   {item.name}

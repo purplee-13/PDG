@@ -5,8 +5,14 @@ import { getFilteredStatsForRole } from "@/lib/data/dashboard-stats"
 import DepartmentDashboard from "./department-dashboard"
 import MayorDashboard from "./mayor-dashboard"
 
-export default function DashboardOverview() {
-  const { user } = useAuth()
+interface DashboardOverviewProps {
+  user?: any
+}
+
+export default function DashboardOverview({ user: sessionUser }: DashboardOverviewProps) {
+  const { user: contextUser } = useAuth()
+
+  const user = sessionUser || contextUser
 
   if (!user) {
     return (

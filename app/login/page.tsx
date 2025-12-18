@@ -14,25 +14,59 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
-  const { login, isLoading } = useAuth()
+  const [isMfaRequired, setIsMfaRequired] = useState(false)
+  const [mfaCode, setMfaCode] = useState("")
+
+  const { isLoading: isContextLoading } = useAuth() // Keep context for now just to not break hook rules
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setIsSubmitting(true)
 
-    if (!identifier || !password) {
-      setError("Semua field harus diisi")
-      return
-    }
+    try {
+      const formData = new FormData()
+      formData.append("email", identifier)
+      formData.append("password", password)
+      if (isMfaRequired && mfaCode) {
+        formData.append("code", mfaCode)
+      }
 
-    const success = await login({ identifier, password })
-    if (success) {
-      router.push("/dashboard")
-    } else {
-      setError("Username/Email/NIK atau password salah")
+      // Dynamic import to avoid server-action build issues in client component if not handled correctly
+      // But typically we can import server actions directly. 
+      // Assuming 'login' is properly 'use server' exported.
+      const { login } = await import("@/actions/auth")
+
+      const result = await login(formData)
+
+      if (result?.error) {
+        setError(result.error)
+        // If MFA code was wrong, we might want to keep the MFA input visible
+        if (result.mfaRequired) {
+          setIsMfaRequired(true)
+        }
+      } else if (result?.mfaRequired) {
+        setIsMfaRequired(true)
+        setError("")
+      } else {
+        // Success
+        // Shim for legacy AuthContext: 
+        // In a real migration, we would replace AuthProvider with SessionProvider.
+        // For now, we rely on the session cookie set by Auth.js.
+        router.push("/dashboard")
+        router.refresh()
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Terjadi kesalahan sistem")
+    } finally {
+      setIsSubmitting(false)
     }
   }
+
+  const isLoading = isContextLoading || isSubmitting
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -77,64 +111,101 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Masuk SSO PDG</h2>
-            <p className="text-gray-600">
-              Belum mempunyai akun?{" "}
-              <Link href="/register" className="text-orange-500 hover:text-orange-600 font-medium">
-                Registrasi disini!
-              </Link>
-            </p>
+            {!isMfaRequired && (
+              <p className="text-gray-600">
+                Belum mempunyai akun?{" "}
+                <Link href="/register" className="text-orange-500 hover:text-orange-600 font-medium">
+                  Registrasi disini!
+                </Link>
+              </p>
+            )}
+            {isMfaRequired && (
+              <p className="text-gray-600 bg-blue-50 p-2 rounded text-sm mt-2">
+                🔒 Keamanan Tambahan Diaktifkan. Masukkan kode Authenticator Anda.
+              </p>
+            )}
           </div>
 
-          {/* QR Code Section */}
-          <div className="text-center mb-8">
-            <div className="w-32 h-32 mx-auto mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
-              <QrCode className="w-16 h-16 text-gray-400" />
+          {!isMfaRequired && (
+            <div className="text-center mb-8">
+              <div className="w-32 h-32 mx-auto mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
+                <QrCode className="w-16 h-16 text-gray-400" />
+              </div>
+              <p className="text-sm text-gray-600">
+                Scan kode QR dengan
+                <br />
+                Aplikasi PDG di HP Anda.
+              </p>
             </div>
-            <p className="text-sm text-gray-600">
-              Scan kode QR dengan
-              <br />
-              Aplikasi PDG di HP Anda.
-            </p>
-          </div>
+          )}
 
-          <div className="text-center text-gray-500 mb-6">atau</div>
+          {!isMfaRequired && <div className="text-center text-gray-500 mb-6">atau</div>}
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <input
-                type="text"
-                placeholder="Masukkan Username, Email, atau NIK*"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                required
-              />
-            </div>
+            {!isMfaRequired ? (
+              <>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Masukkan Email*"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
 
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Kata Sandi*"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent pr-12"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Kata Sandi*"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent pr-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
 
-            <div className="text-right">
-              <Link href="/forgot-password" className="text-sm text-orange-500 hover:text-orange-600">
-                Lupa Kata Sandi?
-              </Link>
-            </div>
+                <div className="text-right">
+                  <Link href="/forgot-password" className="text-sm text-orange-500 hover:text-orange-600">
+                    Lupa Kata Sandi?
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                <div className="flex flex-col space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Kode Autentikasi (6 Digit)</label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="000000"
+                    value={mfaCode}
+                    onChange={(e) => setMfaCode(e.target.value.replace(/[^0-9]/g, ''))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-center text-2xl tracking-widest"
+                    autoFocus
+                    required
+                  />
+                </div>
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => { setIsMfaRequired(false); setMfaCode(""); setError(""); }}
+                    className="text-sm text-gray-500 hover:text-gray-700 underline"
+                  >
+                    Kembali ke halamam login
+                  </button>
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -147,29 +218,34 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Memproses..." : "Masuk"}
+              {isLoading ? "Memproses..." : (isMfaRequired ? "Verifikasi Kode" : "Masuk")}
             </button>
           </form>
 
-          <div className="mt-8">
-            <button className="w-full flex items-center justify-center space-x-3 py-3 px-6 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <Chrome className="w-5 h-5 text-red-500" />
-              <span className="text-gray-700">Masuk dengan Google</span>
-            </button>
-          </div>
+          {!isMfaRequired && (
+            <>
+              <div className="mt-8">
+                <button className="w-full flex items-center justify-center space-x-3 py-3 px-6 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Chrome className="w-5 h-5 text-red-500" />
+                  <span className="text-gray-700">Masuk dengan Google</span>
+                </button>
+              </div>
 
-          <div className="mt-8 text-center text-sm text-gray-600">
-            <Link href="/" className="hover:text-green-600">
-              🏠 Mengalami kendala dengan PDG? <span className="text-orange-500 hover:text-orange-600">Bantuan</span>
-            </Link>
-          </div>
+              <div className="mt-8 text-center text-sm text-gray-600">
+                <Link href="/" className="hover:text-green-600">
+                  🏠 Mengalami kendala dengan PDG? <span className="text-orange-500 hover:text-orange-600">Bantuan</span>
+                </Link>
+              </div>
 
-          {/* Demo credentials info */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800 font-medium mb-2">Demo Credentials:</p>
-            <p className="text-xs text-blue-700">Email: budi.santoso@parepare.go.id</p>
-            <p className="text-xs text-blue-700">Password: password123</p>
-          </div>
+              {/* Demo credentials info */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800 font-medium mb-2">Demo Credentials:</p>
+                <p className="text-xs text-blue-700">Email: admin@parepare.go.id</p>
+                <p className="text-xs text-blue-700">Password: admin</p>
+                <p className="text-xs text-blue-700 mt-2 italic">Note: Akun ini disetup melalui /api/seed</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

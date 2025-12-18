@@ -1,9 +1,10 @@
 "use client"
 
 import { ArrowLeft, ArrowRight } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
 import { useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { motion } from "framer-motion"
 
 export default function ServicesSection() {
   const [startIndex, setStartIndex] = useState(0)
@@ -129,13 +130,17 @@ export default function ServicesSection() {
     )
   }
 
-  // No need for visibleServices since we're using transform
-
   return (
-    <section className="py-16 bg-white relative overflow-hidden">
+    <section className="py-20 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading */}
-        <div className="text-center mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
           <h2 className="text-3xl md:text-4xl font-extrabold text-[#35AC3E] mb-3">
             Layanan Kota Parepare
           </h2>
@@ -145,13 +150,13 @@ export default function ServicesSection() {
           <div className="mt-4 flex justify-end">
             <Link
               href="/services"
-              className="text-[#35AC3E] hover:underline font-medium flex items-center gap-1"
+              className="text-[#35AC3E] hover:underline font-medium flex items-center gap-1 group"
             >
               <span>Lihat Semua</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-        </div>
+        </motion.div>
 
         {/* Slide navigation */}
         <div className="relative">
@@ -160,9 +165,8 @@ export default function ServicesSection() {
           <button
             onClick={handlePrev}
             disabled={startIndex === 0}
-            className={`absolute -left-6 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md border rounded-full p-2 transition hidden md:block ${
-              startIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-gray-100"
-            }`}
+            className={`absolute -left-6 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-lg border rounded-full p-3 transition hidden md:block hover:scale-110 active:scale-95 ${startIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-gray-50"
+              }`}
           >
             <ArrowLeft className="w-5 h-5 text-[#35AC3E]" />
           </button>
@@ -170,66 +174,69 @@ export default function ServicesSection() {
           <button
             onClick={handleNext}
             disabled={startIndex + itemsToShow >= services.length}
-            className={`absolute -right-6 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md border rounded-full p-2 transition hidden md:block ${
-              startIndex + itemsToShow >= services.length
+            className={`absolute -right-6 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-lg border rounded-full p-3 transition hidden md:block hover:scale-110 active:scale-95 ${startIndex + itemsToShow >= services.length
                 ? "opacity-30 cursor-not-allowed"
-                : "hover:bg-gray-100"
-            }`}
+                : "hover:bg-gray-50"
+              }`}
           >
             <ArrowRight className="w-5 h-5 text-[#35AC3E]" />
           </button>
 
-                    {/* Service Grid */}
-          <div className="overflow-hidden">
-            <div 
+          {/* Service Grid */}
+          <div className="overflow-hidden py-4 -my-4 px-1 -mx-1"> {/* Add padding for shadows */}
+            <div
               className="flex transition-transform duration-500 ease-in-out gap-6"
               style={{
                 transform: `translateX(-${startIndex * (100 / itemsToShow)}%)`
               }}
             >
-               {services.map((service) => (
-                              <Link
+              {services.map((service) => (
+                <Link
                   key={service.id}
                   href={service.href}
-                  className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition duration-300 group flex-shrink-0"
+                  className="flex-shrink-0"
                   style={{ width: `calc(${100 / itemsToShow}% - ${24 * (itemsToShow - 1) / itemsToShow}px)` }}
                 >
-                <div className="w-14 h-14 bg-[#E6F7EA] rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <Image
-                    src={service.icon}
-                    alt={`Icon ${service.name}`}
-                    width={40}
-                    height={40}
-                  />
-                </div>
-                <h3 className="font-semibold text-gray-900 group-hover:text-[#35AC3E] mb-2">
-                  {service.name}
-                </h3>
-                <p className="text-sm text-gray-600">{service.description}</p>
-              </Link>
+                  <motion.div
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    className="bg-white border border-gray-100 rounded-2xl p-6 text-center shadow-sm hover:shadow-xl transition-all duration-300 h-full group"
+                  >
+                    <div className="w-16 h-16 bg-[#E6F7EA] text-[#35AC3E] rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-[#35AC3E] group-hover:text-white transition-colors duration-300">
+                      <Image
+                        src={service.icon}
+                        alt={`Icon ${service.name}`}
+                        width={40}
+                        height={40}
+                        className="group-hover:brightness-0 group-hover:invert transition duration-300"
+                      />
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#35AC3E] mb-2">
+                      {service.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 group-hover:text-gray-600">{service.description}</p>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </div>
 
           {/* Tombol navigasi mobile (di bawah) */}
-          <div className="flex justify-center mt-6 md:hidden gap-4">
+          <div className="flex justify-center mt-8 md:hidden gap-4">
             <button
               onClick={handlePrev}
               disabled={startIndex === 0}
-              className={`bg-white shadow-md border rounded-full p-2 transition ${
-                startIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-gray-100"
-              }`}
+              className={`bg-white shadow-md border rounded-full p-3 transition ${startIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-gray-100"
+                }`}
             >
               <ArrowLeft className="w-5 h-5 text-[#35AC3E]" />
             </button>
             <button
               onClick={handleNext}
               disabled={startIndex + itemsToShow >= services.length}
-              className={`bg-white shadow-md border rounded-full p-2 transition ${
-                startIndex + itemsToShow >= services.length
+              className={`bg-white shadow-md border rounded-full p-3 transition ${startIndex + itemsToShow >= services.length
                   ? "opacity-30 cursor-not-allowed"
                   : "hover:bg-gray-100"
-              }`}
+                }`}
             >
               <ArrowRight className="w-5 h-5 text-[#35AC3E]" />
             </button>
