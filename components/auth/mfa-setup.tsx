@@ -60,7 +60,7 @@ export default function MfaSetup() {
 
     return (
         <div className="p-6 bg-white rounded-lg shadow-sm border border-gray-200 max-w-2xl mx-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Two-Factor Authentication (2FA)</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Multi-Factor Authentication (MFA)</h3>
             <p className="text-gray-500 mb-6">Tambahkan lapisan keamanan ekstra dengan aplikasi Authenticator (Google Auth / Authy).</p>
 
             {!qrCode ? (
