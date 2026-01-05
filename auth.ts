@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import Credentials from "next-auth/providers/credentials"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+    // @ts-expect-error Adapter type mismatch with custom User type
     adapter: DrizzleAdapter(db),
     session: { strategy: "jwt" },
     secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
@@ -11,7 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         Credentials({
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "email" },
+                email: { label: "Email/Username/NIK", type: "text" },
                 password: { label: "Password", type: "password" }
             },
             authorize: async (credentials) => {
@@ -19,14 +20,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     return null;
                 }
 
-                const { getUserByEmail } = await import("@/lib/auth/user");
+                const { getUserByIdentifier } = await import("@/lib/auth/user");
                 const bcrypt = await import("bcryptjs");
 
-                const user = await getUserByEmail(credentials.email as string);
+                const user = await getUserByIdentifier(credentials.email as string);
 
                 if (!user || !user.password) {
-                    // Note: In a real app, you might want to mock check to prevent timing attacks,
-                    // but for this scope it's fine.
                     return null;
                 }
 
@@ -36,7 +35,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 );
 
                 if (passwordsMatch) {
-                    return user;
+                    return {
+                        ...user,
+                        role: user.role || "masyarakat",
+                    } as any;
                 }
 
                 return null;
@@ -47,15 +49,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         jwt({ token, user }) {
             if (user) {
                 token.role = user.role
+
                 token.id = user.id
+                token.department = user.department
+
+                token.nik = user.nik
+
+                token.phone = user.phone
+
+                token.address = user.address
+
             }
             return token
         },
         session({ session, token }) {
             if (session.user) {
-                // @ts-expect-error role is not yet typed in session
-                session.user.role = token.role
+                session.user.role = token.role as string
                 session.user.id = token.id as string
+                session.user.department = token.department as string | null
+                session.user.nik = token.nik as string | null
+                session.user.phone = token.phone as string | null
+                session.user.address = token.address as string | null
+
             }
             return session
         },

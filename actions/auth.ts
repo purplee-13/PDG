@@ -18,10 +18,11 @@ export async function login(formData: FormData) {
         return { error: "Email dan password wajib diisi." };
     }
 
-    const existingUser = await getUserByEmail(email);
+    const { getUserByIdentifier } = await import("@/lib/auth/user");
+    const existingUser = await getUserByIdentifier(email);
 
     if (!existingUser || !existingUser.password || !existingUser.email) {
-        return { error: "Email atau password salah." };
+        return { error: "Akun tidak ditemukan atau password salah." };
     }
 
     const passwordsMatch = await bcrypt.compare(password, existingUser.password);
@@ -52,10 +53,24 @@ export async function login(formData: FormData) {
     }
 
     try {
+        // Redirect based on role not needed here if handled by middleware or dashboard page redirection
+        // But let's simple redirect to /dashboard and let the dashboard handle it, OR
+        // we can check role here. 
+        // Note: signIn in NextAuth v5 throws an error for redirect.
+
+        // If we want custom redirection logic we can do it after sign in or let the default happen.
+        // The issue 'user registered as staff' was likely due to hardcoded mock data or default role logic errors which we fixed.
+        // User asked to be redirected to login AFTER registration, which we fixed in register/page.tsx.
+        // Now for login, if they are "masyarakat", they go to dashboard/public-services or similar.
+        // However, the prompt says "setelah registrasi berhasil ... diarahkan ke halaman login kembali". This is done.
+        // The prompt ALSO says "jika regis, user terdaftar sebagai 'Staff' ... ubah role menjadi 'Masyarakat'". This is done in route.ts.
+
+        const redirectTo = existingUser.role === "masyarakat" ? "/" : "/dashboard";
+
         await signIn("credentials", {
             email,
             password,
-            redirectTo: "/dashboard",
+            redirectTo,
         });
     } catch (error) {
         if (error instanceof AuthError) {

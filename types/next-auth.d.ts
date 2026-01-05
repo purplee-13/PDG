@@ -7,13 +7,29 @@ declare module "next-auth" {
     interface Session {
         user: {
             id: string
-            role: "admin" | "mayor" | "department_head" | "public" | string
+            role: "admin" | "mayor" | "department_head" | "public" | "masyarakat" | string
             department?: string | null
+            nik?: string | null
+            phone?: string | null
+            address?: string | null
         } & DefaultSession["user"]
     }
 
     interface User {
-        role: "admin" | "mayor" | "department_head" | "public" | string
+        role: "admin" | "mayor" | "department_head" | "public" | "masyarakat" | string
         department?: string | null
+        nik?: string | null
+        phone?: string | null
+        address?: string | null
+    }
+}
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        role?: "admin" | "mayor" | "department_head" | "public" | "masyarakat" | string
+        department?: string | null
+        nik?: string | null
+        phone?: string | null
+        address?: string | null
     }
 }

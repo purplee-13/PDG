@@ -1,33 +1,36 @@
 "use client"
 
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, User as UserIcon, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth/auth-context";
 
 export default function Navbar() {
+  const { user, logout } = useAuth();
   const [topicsDropdownOpen, setTopicsDropdownOpen] = useState(false);
   const [layananSubmenuOpen, setLayananSubmenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [layananMobileOpen, setLayananMobileOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const layananPublikSubmenu = [
-      { title: "Pengawasan", href: "/pengawasan" },
-      { title: "Perdagangan", href: "/trading" },
-      { title: "Pendidikan", href: "/services/category/pendidikan" },
-      { title: "Keuangan", href: "/services/category/keuangan" },
-      { title: "Kesehatan", href: "/services/category/kesehatan" },
-      { title: "Kependudukan", href: "/kependudukan" },
-      { title: "Pengawasan", href: "/Pengawasan" },
-      { title: "Tenaga Kerja", href: "/tenagaKerja" },
-      { title: "Telekomunikasi", href: "/telekomunikasi" },
-      { title: "Industri", href: "/industri" },
-      { title: "Pariwisata", href: "/pariwisata" },
-      { title: "Geografis", href: "/geografis" },
-      { title: "Pemerintahan", href: "/pemerintahan" },
-      { title: "Sosial", href: "/sosial" },
-      { title: "Transportasi", href: "/transportasi" },
-      { title: "Pertanian", href: "/pertanian" },
+    { title: "Pengawasan", href: "/pengawasan" },
+    { title: "Perdagangan", href: "/trading" },
+    { title: "Pendidikan", href: "/services/category/pendidikan" },
+    { title: "Keuangan", href: "/services/category/keuangan" },
+    { title: "Kesehatan", href: "/services/category/kesehatan" },
+    { title: "Kependudukan", href: "/kependudukan" },
+    { title: "Pengawasan", href: "/Pengawasan" },
+    { title: "Tenaga Kerja", href: "/tenagaKerja" },
+    { title: "Telekomunikasi", href: "/telekomunikasi" },
+    { title: "Industri", href: "/industri" },
+    { title: "Pariwisata", href: "/pariwisata" },
+    { title: "Geografis", href: "/geografis" },
+    { title: "Pemerintahan", href: "/pemerintahan" },
+    { title: "Sosial", href: "/sosial" },
+    { title: "Transportasi", href: "/transportasi" },
+    { title: "Pertanian", href: "/pertanian" },
   ]
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-[9999]">
@@ -111,14 +114,67 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Login Button */}
+          {/* Login Button or User Profile */}
           <div className="hidden md:block">
-            <Link
-              href="/login"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full transition-colors"
-            >
-              Login
-            </Link>
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-green-600 transition-colors focus:outline-none"
+                >
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center border border-green-200">
+                    <UserIcon className="w-5 h-5 text-green-700" />
+                  </div>
+                  <span className="font-medium max-w-[150px] truncate">{user.name}</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    </div>
+
+                    {user.role !== "masyarakat" && (
+                      <Link
+                        href="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => setUserDropdownOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                    )}
+
+                    <Link
+                      href="/dashboard/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      Profil Saya
+                    </Link>
+
+                    <button
+                      onClick={() => {
+                        logout();
+                        setUserDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Keluar</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full transition-colors"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -201,13 +257,56 @@ export default function Navbar() {
             >
               Support
             </Link>
-            <Link
-              href="/login"
-              className="block w-full text-left bg-orange-500 text-white px-3 py-2 rounded-lg mt-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Login
-            </Link>
+            {user ? (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="px-3 py-2 flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center border border-green-200">
+                    <UserIcon className="w-5 h-5 text-green-700" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                </div>
+
+                {user.role !== "masyarakat" && (
+                  <Link
+                    href="/dashboard"
+                    className="block px-3 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                )}
+
+                <Link
+                  href="/dashboard/profile"
+                  className="block px-3 py-2 text-gray-700 hover:text-gray-900"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Profil Saya
+                </Link>
+
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Keluar</span>
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="block w-full text-left bg-orange-500 text-white px-3 py-2 rounded-lg mt-2 text-center"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
       )}

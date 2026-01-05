@@ -7,7 +7,7 @@ interface User {
   id: string
   name: string
   email: string
-  role: "kepala_dinas" | "walikota" | "staff"
+  role: "kepala_dinas" | "walikota" | "staff" | "masyarakat"
   department: string
   nik: string
   phone: string
@@ -51,145 +51,152 @@ interface RegisterData {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // Mock users data with role-based permissions
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Dr. Budi Santoso",
-    email: "budi.santoso@parepare.go.id",
-    role: "kepala_dinas",
-    department: "kesehatan",
-    nik: "7315041234567890",
-    phone: "08123456789",
-    address: "Jl. Jenderal Sudirman No. 45",
-    permissions: ["view_department_data", "view_department_stats", "view_department_reports"],
-  },
-  {
-    id: "2",
-    name: "Siti Nurhaliza, S.Pd",
-    email: "siti.nurhaliza@parepare.go.id",
-    role: "kepala_dinas",
-    department: "pendidikan",
-    nik: "7315040987654321",
-    phone: "08234567890",
-    address: "Jl. Bau Massepe No. 23",
-    permissions: ["view_department_data", "view_department_stats", "view_department_reports"],
-  },
-  {
-    id: "3",
-    name: "Ahmad Rizki",
-    email: "ahmad.rizki@parepare.go.id",
-    role: "kepala_dinas",
-    department: "perdagangan",
-    nik: "7315041111222333",
-    phone: "08345678901",
-    address: "Jl. Andi Makkasau No. 12",
-    permissions: ["view_department_data", "view_department_stats", "view_department_reports"],
-  },
-  {
-    id: "4",
-    name: "Maya Sari",
-    email: "maya.sari@parepare.go.id",
-    role: "kepala_dinas",
-    department: "keuangan",
-    nik: "7315044444555666",
-    phone: "08456789012",
-    address: "Jl. Karaeng Burane No. 8",
-    permissions: ["view_department_data", "view_department_stats", "view_department_reports"],
-  },
-  {
-    id: "5",
-    name: "H. Muhammad Taufan Pawe",
-    email: "walikota@parepare.go.id",
-    role: "walikota",
-    department: "all",
-    nik: "7315050000000001",
-    phone: "08111000001",
-    address: "Kantor Walikota Parepare",
-    permissions: [
-      "view_all_departments",
-      "view_aggregated_stats",
-      "view_city_reports",
-      "view_mayor_dashboard",
-      "view_strategic_insights",
-    ],
-  },
-]
+// Mock users removed - using real backend
+
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    // Check for existing session on mount
-    const savedUser = localStorage.getItem("pdg-user")
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
+  // Helper to map role to permissions
+  const getPermissionsForRole = (role: string): string[] => {
+    switch (role) {
+      case "walikota":
+        return ["view_all_departments", "view_aggregated_stats", "view_city_reports", "view_mayor_dashboard", "view_strategic_insights"]
+      case "kepala_dinas":
+        return ["view_department_data", "view_department_stats", "view_department_reports"]
+      case "staff":
+        return ["view_basic_data"]
+      case "masyarakat":
+        return ["view_public_services"]
+      default:
+        return []
     }
-    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        // Dynamic import to avoid SSR issues if necessary, though next-auth/react is client safe
+        const { getSession } = await import("next-auth/react")
+        const session = await getSession()
+
+        if (session?.user) {
+          const role = session.user.role || "masyarakat"
+
+          setUser({
+            ...session.user,
+            id: session.user.id || "",
+            name: session.user.name || "",
+            email: session.user.email || "",
+            role: role,
+
+            department: session.user.department || "",
+
+            nik: session.user.nik || "",
+
+            phone: session.user.phone || "",
+
+            address: session.user.address || "",
+
+            permissions: getPermissionsForRole(role),
+          } as User)
+        }
+      } catch (error) {
+        console.error("Failed to fetch session:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    initAuth()
   }, [])
 
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     setIsLoading(true)
+    try {
+      const { signIn } = await import("next-auth/react")
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: credentials.identifier, // Assuming the form passes identifier as email. If it's username/nik, auth.ts needs to handle it.
+        password: credentials.password,
+      })
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (result?.error) {
+        console.error("Login failed:", result.error)
+        setIsLoading(false)
+        return false
+      }
 
-    // Find user by email, username, or NIK
-    const foundUser = mockUsers.find(
-      (user) =>
-        user.email === credentials.identifier ||
-        user.email.split("@")[0] === credentials.identifier ||
-        user.nik === credentials.identifier,
-    )
+      // Refresh session to get user data
+      const { getSession } = await import("next-auth/react")
+      const session = await getSession()
+      if (session?.user) {
+        const role = session.user.role || "masyarakat"
 
-    if (foundUser && credentials.password === "password123") {
-      setUser(foundUser)
-      localStorage.setItem("pdg-user", JSON.stringify(foundUser))
+        setUser({
+          ...session.user,
+          id: session.user.id || "",
+          name: session.user.name || "",
+          email: session.user.email || "",
+          role: role,
+
+          department: session.user.department || "",
+
+          nik: session.user.nik || "",
+
+          phone: session.user.phone || "",
+
+          address: session.user.address || "",
+
+          permissions: getPermissionsForRole(role),
+        } as User)
+        setIsLoading(false)
+        return true
+      }
+
       setIsLoading(false)
-      return true
+      return true // Login successful even if session fetch weird
+    } catch (error) {
+      console.error("Login error:", error)
+      setIsLoading(false)
+      return false
     }
-
-    setIsLoading(false)
-    return false
   }
 
   const register = async (userData: RegisterData): Promise<boolean> => {
     setIsLoading(true)
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      })
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+      if (!response.ok) {
+        const data = await response.json()
+        console.error("Registration failed:", data.error)
+        setIsLoading(false)
+        return false
+      }
 
-    // Check if user already exists
-    const existingUser = mockUsers.find((user) => user.nik === userData.nik || user.email === userData.email)
+      // Do we auto-login? The requirement says "user dapat melakukan login". 
+      // So returning true here lets the page redirect to login/dashboard.
 
-    if (existingUser) {
+      setIsLoading(false)
+      return true
+    } catch (error) {
+      console.error("Registration error:", error)
       setIsLoading(false)
       return false
     }
-
-    // Create new user with staff role
-    const newUser: User = {
-      id: Date.now().toString(),
-      name: userData.name,
-      email: userData.email,
-      role: "staff",
-      department: "umum",
-      nik: userData.nik,
-      phone: userData.phone,
-      address: userData.address,
-      permissions: ["view_basic_data"],
-    }
-
-    mockUsers.push(newUser)
-    setUser(newUser)
-    localStorage.setItem("pdg-user", JSON.stringify(newUser))
-    setIsLoading(false)
-    return true
   }
 
-  const logout = () => {
+  const logout = async () => {
+    const { signOut } = await import("next-auth/react")
+    await signOut({ redirect: false })
     setUser(null)
-    localStorage.removeItem("pdg-user")
+    localStorage.removeItem("pdg-user") // Clean up legacy
   }
 
   const hasPermission = (permission: string): boolean => {

@@ -13,11 +13,28 @@ export const users = pgTable("user", {
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
     name: text("name"),
-    email: text("email").notNull(),
+    email: text("email").notNull().unique(),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
-    role: text("role").$type<"admin" | "mayor" | "department_head" | "public">().default("public"),
+    role: text("role").$type<"admin" | "mayor" | "department_head" | "public" | "masyarakat">().default("masyarakat"),
     department: text("department"),
+
+    // Registration data
+    nik: text("nik").unique(),
+    birthDate: text("birthDate"), // Storing as text YYYY-MM-DD from form, or date type
+    phone: text("phone"),
+    username: text("username").unique(),
+
+    // Address data
+    province: text("province"),
+    city: text("city"),
+    district: text("district"),
+    village: text("village"),
+    rt: text("rt"),
+    rw: text("rw"),
+    postalCode: text("postalCode"),
+    address: text("address"),
+
     mfaEnabled: boolean("mfaEnabled").default(false),
     mfaSecret: text("mfaSecret"),
     password: text("password"),
