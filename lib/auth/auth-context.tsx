@@ -23,6 +23,7 @@ interface AuthContextType {
   isLoading: boolean
   hasPermission: (permission: string) => boolean
   canAccessDepartment: (department: string) => boolean
+  setAuthenticatedUser: (user: User) => void
 }
 
 interface LoginCredentials {
@@ -209,8 +210,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return user.department === department || user.department === "all"
   }
 
+  const setAuthenticatedUser = (user: User) => {
+    setUser(user)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, isLoading, hasPermission, canAccessDepartment }}>
+    <AuthContext.Provider value={{ user, login, logout, register, isLoading, hasPermission, canAccessDepartment, setAuthenticatedUser }}>
       {children}
     </AuthContext.Provider>
   )

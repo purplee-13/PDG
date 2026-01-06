@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [isMfaRequired, setIsMfaRequired] = useState(false)
   const [mfaCode, setMfaCode] = useState("")
 
-  const { isLoading: isContextLoading } = useAuth() // Keep context for now just to not break hook rules
+  const { isLoading: isContextLoading, setAuthenticatedUser } = useAuth() // Keep context for now just to not break hook rules
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
@@ -50,12 +50,15 @@ export default function LoginPage() {
       } else if (result?.mfaRequired) {
         setIsMfaRequired(true)
         setError("")
-      } else {
+      } else if (result?.success) {
         // Success
-        // Shim for legacy AuthContext: 
-        // In a real migration, we would replace AuthProvider with SessionProvider.
-        // For now, we rely on the session cookie set by Auth.js.
-        router.push("/dashboard")
+        // Optimistically update the context so the navbar changes IMMEDIATELY
+        if (result.user && setAuthenticatedUser) {
+          // @ts-ignore
+          setAuthenticatedUser(result.user);
+        }
+
+        router.push(result.redirectTo || "/dashboard")
         router.refresh()
       }
     } catch (err) {

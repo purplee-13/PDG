@@ -279,10 +279,10 @@ export default function DashboardLayout({ children, user: sessionUser }: Dashboa
 
             <div className="flex items-center space-x-4">
               {/* Notifications */}
-              <button className="relative p-2 text-gray-400 hover:text-gray-500">
+              {/* <button className="relative p-2 text-gray-400 hover:text-gray-500">
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white" />
-              </button>
+              </button> */}
 
               {/* Role indicator */}
               <div className="hidden md:flex items-center space-x-2 px-3 py-1 bg-green-100 rounded-full">

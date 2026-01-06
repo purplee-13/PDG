@@ -53,25 +53,35 @@ export async function login(formData: FormData) {
     }
 
     try {
-        // Redirect based on role not needed here if handled by middleware or dashboard page redirection
-        // But let's simple redirect to /dashboard and let the dashboard handle it, OR
-        // we can check role here. 
-        // Note: signIn in NextAuth v5 throws an error for redirect.
-
-        // If we want custom redirection logic we can do it after sign in or let the default happen.
-        // The issue 'user registered as staff' was likely due to hardcoded mock data or default role logic errors which we fixed.
-        // User asked to be redirected to login AFTER registration, which we fixed in register/page.tsx.
-        // Now for login, if they are "masyarakat", they go to dashboard/public-services or similar.
-        // However, the prompt says "setelah registrasi berhasil ... diarahkan ke halaman login kembali". This is done.
-        // The prompt ALSO says "jika regis, user terdaftar sebagai 'Staff' ... ubah role menjadi 'Masyarakat'". This is done in route.ts.
-
         const redirectTo = existingUser.role === "masyarakat" ? "/" : "/dashboard";
 
-        await signIn("credentials", {
+        const result = await signIn("credentials", {
             email,
             password,
-            redirectTo,
+            redirect: false,
         });
+
+        if (result?.error) {
+            return { error: "Kredensial tidak valid." };
+        }
+
+        return {
+            success: true,
+            redirectTo,
+            user: {
+                id: existingUser.id,
+                name: existingUser.name,
+                email: existingUser.email,
+                role: existingUser.role,
+                department: existingUser.department,
+                nik: existingUser.nik,
+                phone: existingUser.phone,
+                address: existingUser.address,
+                permissions: [] // Permissions will be calculated on client or we can do it here if we want perfect sync, but Client AuthContext does it by role. 
+                // We'll leave permissions empty here and let AuthContext recalculate based on role if needed, 
+                // but AuthContext expects full User object. 
+            }
+        };
     } catch (error) {
         if (error instanceof AuthError) {
             switch (error.type) {
@@ -81,6 +91,7 @@ export async function login(formData: FormData) {
                     return { error: "Terjadi kesalahan login." };
             }
         }
+        // In case of other errors (though redirect:false prevents NEXT_REDIRECT usually)
         throw error;
     }
 }
