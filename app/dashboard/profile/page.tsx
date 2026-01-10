@@ -13,6 +13,19 @@ export default async function ProfilePage() {
 
     const { user } = session
 
+    const { db } = await import("@/lib/db")
+    const { users } = await import("@/lib/db/schema")
+    const { eq } = await import("drizzle-orm")
+
+    const dbUser = await db.query.users.findFirst({
+        where: eq(users.id, user.id as string),
+        columns: {
+            mfaEnabled: true
+        }
+    })
+
+    const isMfaEnabled = dbUser?.mfaEnabled ?? false
+
     return (
         <div className="min-h-screen bg-gray-50 pb-12">
             {/* Header Banner */}
@@ -121,7 +134,7 @@ export default async function ProfilePage() {
                             </div>
 
                             <div className="bg-blue-50/50 rounded-xl p-6 border border-blue-100">
-                                <MfaSetup />
+                                <MfaSetup isEnabled={isMfaEnabled} />
                             </div>
                         </div>
                     </div>

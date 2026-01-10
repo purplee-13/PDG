@@ -2,16 +2,19 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { generateMfaSecretAction, enableMfaAction } from "@/actions/mfa"
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { generateMfaSecretAction, enableMfaAction, disableMfaAction } from "@/actions/mfa"
+import { CheckCircle, AlertCircle, Loader2, ShieldCheck, RefreshCw, Trash2 } from "lucide-react"
 
-export default function MfaSetup() {
+export default function MfaSetup({ isEnabled = false }: { isEnabled?: boolean }) {
     const [qrCode, setQrCode] = useState<string | null>(null)
     const [secret, setSecret] = useState<string | null>(null)
     const [code, setCode] = useState("")
     const [error, setError] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const [isDisabling, setIsDisabling] = useState(false)
+
+    const isMfaActive = isEnabled || isSuccess
 
     const startSetup = async () => {
         setIsLoading(true)
@@ -46,14 +49,56 @@ export default function MfaSetup() {
         }
     }
 
-    if (isSuccess) {
+    const handleDisable = async () => {
+        if (!confirm("Apakah Anda yakin ingin menonaktifkan MFA? Akun Anda akan menjadi kurang aman.")) return
+        setIsDisabling(true)
+        setError("")
+        try {
+            await disableMfaAction()
+            window.location.reload()
+        } catch (e) {
+            setError("Gagal menonaktifkan MFA.")
+            setIsDisabling(false)
+        }
+    }
+
+    if (isMfaActive) {
         return (
-            <div className="p-6 bg-green-50 rounded-lg border border-green-200">
-                <div className="flex items-center space-x-3 text-green-700 mb-2">
-                    <CheckCircle className="w-6 h-6" />
-                    <h3 className="text-lg font-medium">MFA Berhasil Diaktifkan!</h3>
+            <div className="space-y-6">
+                <div className="p-6 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center space-x-3 text-green-700 mb-2">
+                        <ShieldCheck className="w-8 h-8" />
+                        <div>
+                            <h3 className="text-lg font-bold">MFA Sudah Aktif</h3>
+                            <p className="text-sm text-green-600">Akun Anda dilindungi dengan autentikasi dua faktor.</p>
+                        </div>
+                    </div>
                 </div>
-                <p className="text-green-600 ml-9">Akun Anda sekarang lebih aman. Logout dan Login kembali untuk mencoba.</p>
+
+                <div className="flex flex-col space-y-3 pt-4 border-t border-gray-100">
+                    <h4 className="text-sm font-medium text-gray-700">Pengaturan MFA</h4>
+                    <div className="flex space-x-3">
+                        {/* Option to re-configure (Reset) - functionally same as disable then enable, but let's just offer disable for now or reset implies start over */}
+                        <button
+                            onClick={startSetup}
+                            className="hidden flex items-center px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                        >
+                            {/* Hidden for now unless we want to support easy reset key rotation without disabling first */}
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Atur Ulang
+                        </button>
+
+                        <button
+                            onClick={handleDisable}
+                            disabled={isDisabling}
+                            className="flex items-center px-4 py-2 bg-white border border-red-200 rounded text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+                        >
+                            {isDisabling ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                            Nonaktifkan MFA
+                        </button>
+                    </div>
+                    {error && <p className="text-sm text-red-500">{error}</p>}
+                </div>
             </div>
         )
     }

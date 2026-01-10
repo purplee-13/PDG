@@ -12,6 +12,21 @@ export default async function SettingsPage() {
         redirect("/login")
     }
 
+    const { user } = session
+
+    const { db } = await import("@/lib/db")
+    const { users } = await import("@/lib/db/schema")
+    const { eq } = await import("drizzle-orm")
+
+    const dbUser = await db.query.users.findFirst({
+        where: eq(users.id, user.id as string),
+        columns: {
+            mfaEnabled: true
+        }
+    })
+
+    const isMfaEnabled = dbUser?.mfaEnabled ?? false
+
     return (
         <DashboardLayout user={session.user}>
             <div className="space-y-6">
@@ -36,7 +51,7 @@ export default async function SettingsPage() {
                                     Tingkatkan keamanan akun dengan mewajibkan kode verifikasi dari aplikasi Authenticator saat login.
                                 </p>
                                 <div className="max-w-md">
-                                    <MfaSetup session={session} />
+                                    <MfaSetup isEnabled={isMfaEnabled} />
                                 </div>
                             </div>
                         </CardContent>

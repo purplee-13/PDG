@@ -9,6 +9,8 @@ type SearchParams = {
     role?: string
 }
 
+import DashboardLayout from "@/components/dashboard/dashboard-layout"
+
 export default async function UserManagementPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
     const session = await auth()
     const params = await searchParams; // Await params in Next.js 15+
@@ -19,5 +21,9 @@ export default async function UserManagementPage({ searchParams }: { searchParam
 
     const users = await getUsers(params?.q, params?.role)
 
-    return <UserManagementTable users={users} />
+    return (
+        <DashboardLayout user={session.user}>
+            <UserManagementTable users={users} />
+        </DashboardLayout>
+    )
 }

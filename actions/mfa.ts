@@ -51,3 +51,20 @@ export async function enableMfaAction(secret: string, code: string) {
     revalidatePath("/dashboard")
     return { success: true }
 }
+
+export async function disableMfaAction() {
+    const session = await auth()
+    if (!session?.user?.email) {
+        throw new Error("Unauthorized")
+    }
+
+    await db.update(users)
+        .set({
+            mfaSecret: null,
+            mfaEnabled: false
+        })
+        .where(eq(users.email, session.user.email))
+
+    revalidatePath("/dashboard")
+    return { success: true }
+}
