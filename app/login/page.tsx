@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 export default function LoginPage() {
-  const [identifier, setIdentifier] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -28,23 +28,28 @@ export default function LoginPage() {
 
     try {
       const formData = new FormData()
-      formData.append("email", identifier)
+      formData.append("email", email)
       formData.append("password", password)
       if (isMfaRequired && mfaCode) {
         formData.append("code", mfaCode)
       }
 
-      // Dynamic import to avoid server-action build issues in client component if not handled correctly
-      // But typically we can import server actions directly. 
-      // Assuming 'login' is properly 'use server' exported.
-      const { login } = await import("@/actions/auth")
+      // Use the unified API login endpoint
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          code: isMfaRequired && mfaCode ? mfaCode : undefined
+        }),
+      });
 
-      const result = await login(formData)
+      const result = await response.json();
 
-      if (result?.error) {
-        setError(result.error)
-        // If MFA code was wrong, we might want to keep the MFA input visible
-        if (result.mfaRequired) {
+      if (!response.ok || result?.error) {
+        setError(result?.error || "Kredensial tidak valid");
+        if (result?.mfaRequired) {
           setIsMfaRequired(true)
         }
       } else if (result?.mfaRequired) {
@@ -52,7 +57,6 @@ export default function LoginPage() {
         setError("")
       } else if (result?.success) {
         // Success
-        // Optimistically update the context so the navbar changes IMMEDIATELY
         if (result.user && setAuthenticatedUser) {
           // @ts-ignore
           setAuthenticatedUser(result.user);
@@ -152,8 +156,8 @@ export default function LoginPage() {
                   <input
                     type="text"
                     placeholder="Masukkan Email*"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     required
                   />

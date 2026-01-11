@@ -12,20 +12,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         Credentials({
             name: "Credentials",
             credentials: {
-                email: { label: "Email/Username/NIK", type: "text" },
-                password: { label: "Password", type: "password" }
+                email: { label: "Email", type: "text" },
+                password: { label: "Password", type: "password" },
+                code: { label: "MFA Code", type: "text" }
             },
             authorize: async (credentials) => {
                 if (!credentials?.email || !credentials?.password) {
                     return null;
                 }
 
-                const { getUserByIdentifier } = await import("@/lib/auth/user");
+                const { getUserByEmail } = await import("@/lib/auth/user");
                 const bcrypt = await import("bcryptjs");
 
-                const user = await getUserByIdentifier(credentials.email as string);
+                console.log("[AUTH] Authorizing user:", credentials.email);
+                const user = await getUserByEmail(credentials.email as string);
 
                 if (!user || !user.password) {
+                    console.log("[AUTH] User not found or no password");
                     return null;
                 }
 
@@ -34,14 +37,46 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     user.password
                 );
 
-                if (passwordsMatch) {
-                    return {
-                        ...user,
-                        role: user.role || "masyarakat",
-                    } as any;
+                if (!passwordsMatch) {
+                    console.log("[AUTH] Password mismatch");
+                    return null;
                 }
 
-                return null;
+                // MFA Check - Be extremely strict
+                // Drizzle/PG might return boolean as 1/0 or true/false
+                const isMfaActive = user.mfaEnabled === true || (user.mfaEnabled as any) === 1 || (user.mfaEnabled as any) === "true";
+
+                console.log("[AUTH] MFA Data:", { mfaEnabled: user.mfaEnabled, isMfaActive, hasCode: !!credentials.code });
+
+                if (isMfaActive) {
+                    if (!credentials.code) {
+                        console.log("[AUTH] BLOCKED: MFA required but code missing");
+                        // Returning null here tells NextAuth the authorization failed
+                        return null;
+                    }
+
+                    const { verifyMFAToken } = await import("@/lib/auth/mfa");
+                    const isValid = verifyMFAToken(credentials.code as string, user.mfaSecret as string);
+
+                    if (!isValid) {
+                        console.log("[AUTH] BLOCKED: Invalid MFA code");
+                        return null;
+                    }
+                    console.log("[AUTH] MFA verified successfully");
+                }
+
+                console.log("[AUTH] Authorization successful for:", user.email);
+
+                return {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role || "masyarakat",
+                    department: user.department,
+                    nik: user.nik,
+                    phone: user.phone,
+                    address: user.address,
+                };
             }
         })
     ],

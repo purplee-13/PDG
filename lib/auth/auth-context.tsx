@@ -27,7 +27,7 @@ interface AuthContextType {
 }
 
 interface LoginCredentials {
-  identifier: string // email, username, or NIK
+  identifier: string // email only
   password: string
 }
 

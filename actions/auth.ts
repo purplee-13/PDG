@@ -18,8 +18,7 @@ export async function login(formData: FormData) {
         return { error: "Email dan password wajib diisi." };
     }
 
-    const { getUserByIdentifier } = await import("@/lib/auth/user");
-    const existingUser = await getUserByIdentifier(email);
+    const existingUser = await getUserByEmail(email);
 
     if (!existingUser || !existingUser.password || !existingUser.email) {
         return { error: "Akun tidak ditemukan atau password salah." };
@@ -31,23 +30,28 @@ export async function login(formData: FormData) {
         return { error: "Email atau password salah." };
     }
 
-    if (existingUser.mfaEnabled) {
+    const isMfaActive = existingUser.mfaEnabled === true || (existingUser.mfaEnabled as any) === 1 || (existingUser.mfaEnabled as any) === "true";
+    console.log("[LOGIN ACTION] MFA Data:", { email, mfaEnabled: existingUser.mfaEnabled, isMfaActive, hasCode: !!code });
+
+    if (isMfaActive) {
         if (code) {
             // User sent code, verify it
             const mfaSecret = existingUser.mfaSecret;
             if (!mfaSecret) {
-                // Should not happen if mfaEnabled is true
+                console.log("[LOGIN ACTION] MFA Secret missing!");
                 return { error: "Terjadi kesalahan internal MFA." };
             }
 
             const isValid = verifyMFAToken(code, mfaSecret);
             if (!isValid) {
+                console.log("[LOGIN ACTION] Invalid MFA code");
                 return { error: "Kode MFA salah!", mfaRequired: true };
             }
 
-            // Fall through to normal sign in
+            console.log("[LOGIN ACTION] MFA verified successfully");
         } else {
             // User has MFA but didn't send code -> Prompt MFA
+            console.log("[LOGIN ACTION] MFA required but code missing in form");
             return { mfaRequired: true };
         }
     }
@@ -58,6 +62,7 @@ export async function login(formData: FormData) {
         const result = await signIn("credentials", {
             email,
             password,
+            code,
             redirect: false,
         });
 

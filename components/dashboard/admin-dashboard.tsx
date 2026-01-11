@@ -1,8 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type { DepartmentStats } from "@/lib/data/dashboard-stats"
 import { Users, Shield, Activity, Settings } from "lucide-react"
 import Link from "next/link"
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+    data: DepartmentStats | undefined
+}
+
+export default function AdminDashboard({ data }: AdminDashboardProps) {
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Admin Dashboard</h1>
@@ -14,7 +19,7 @@ export default function AdminDashboard() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">1</div>
+                        <div className="text-2xl font-bold">{data?.totalUsers.toLocaleString()}</div>
                         <p className="text-xs text-muted-foreground">Active system users</p>
                     </CardContent>
                 </Card>

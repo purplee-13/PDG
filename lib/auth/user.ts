@@ -13,17 +13,4 @@ export async function getUserByEmail(email: string) {
     }
 }
 
-export async function getUserByIdentifier(identifier: string) {
-    try {
-        const user = await db.query.users.findFirst({
-            where: or(
-                eq(users.email, identifier),
-                eq(users.username, identifier),
-                eq(users.nik, identifier)
-            ),
-        });
-        return user;
-    } catch {
-        return null;
-    }
-}
+

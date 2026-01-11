@@ -22,7 +22,6 @@ export async function generateMFASecret(email: string) {
  * @param secret The user's stored MFA secret.
  */
 export function verifyMFAToken(token: string, secret: string): boolean {
-    // Allows +/- 30 seconds drift (1 step window)
-    authenticator.options = { window: 1 };
+    authenticator.options = { window: 0 };
     return authenticator.verify({ token, secret });
 }
