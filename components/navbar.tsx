@@ -3,7 +3,7 @@
 import { ChevronDown, Menu, X, User as UserIcon, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth/auth-context";
 
 export default function Navbar() {
@@ -13,6 +13,26 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [layananMobileOpen, setLayananMobileOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  const topicsRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (topicsRef.current && !topicsRef.current.contains(event.target as Node)) {
+        setTopicsDropdownOpen(false);
+        setLayananSubmenuOpen(false);
+      }
+      if (userRef.current && !userRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const layananPublikSubmenu = [
     { title: "Pengawasan", href: "/pengawasan" },
@@ -31,9 +51,10 @@ export default function Navbar() {
     { title: "Sosial", href: "/sosial" },
     { title: "Transportasi", href: "/transportasi" },
     { title: "Pertanian", href: "/pertanian" },
+    { title: "Fasilitas Umum", href: "/fasilitasUmum" },
   ]
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-[9999]">
+    <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -45,7 +66,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               <div className="bg-green-500 text-white px-8 py-2 rounded-full flex items-center space-x-6">
-                <div className="relative">
+                <div className="relative" ref={topicsRef}>
                   <button
                     onClick={() => setTopicsDropdownOpen(!topicsDropdownOpen)}
                     className="flex items-center space-x-1 hover:text-green-100 transition-colors"
@@ -57,22 +78,31 @@ export default function Navbar() {
                   {topicsDropdownOpen && (
                     <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                       {/* Layanan Publik Submenu */}
-                      <div
-                        className="relative group px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md"
-                        onMouseEnter={() => setLayananSubmenuOpen(true)}
-                        onMouseLeave={() => setLayananSubmenuOpen(false)}
-                      >
-                        <div className="flex justify-between items-center">
+                      <div className="relative px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md">
+                        <button
+                          className="flex justify-between items-center w-full focus:outline-none"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLayananSubmenuOpen(!layananSubmenuOpen);
+                          }}
+                        >
                           <span className="text-gray-700">Layanan Publik</span>
-                          <ChevronDown className="w-3 h-3" />
-                        </div>
+                          <ChevronDown className={`w-3 h-3 transform transition-transform ${layananSubmenuOpen ? "-rotate-90" : ""}`} />
+                        </button>
                         {layananSubmenuOpen && (
-                          <div className="absolute left-full top-0 ml-2 w-96 bg-white shadow-lg rounded-md border border-gray-200 z-50 p-2 grid grid-cols-2 gap-2">
+                          <div
+                            className="absolute left-full top-0 ml-2 w-96 bg-white shadow-lg rounded-md border border-gray-200 z-50 p-2 grid grid-cols-2 gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             {layananPublikSubmenu.map((item, index) => (
                               <Link
                                 key={index}
                                 href={item.href}
                                 className="block px-2 py-1 text-gray-700 hover:bg-gray-100 rounded-md text-sm"
+                                onClick={() => {
+                                  setLayananSubmenuOpen(false);
+                                  setTopicsDropdownOpen(false);
+                                }}
                               >
                                 {item.title}
                               </Link>
@@ -85,14 +115,18 @@ export default function Navbar() {
                       <Link
                         href="/destinations"
                         className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
+                        onClick={() => setTopicsDropdownOpen(false)}
                       >
                         Destinasi Wisata
                       </Link>
 
                       {/* Data Kota */}
                       <Link
-                        href="/data"
+                        href="https://simak.ith.ac.id/"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
+                        onClick={() => setTopicsDropdownOpen(false)}
                       >
                         Data Kota
                       </Link>
@@ -117,7 +151,7 @@ export default function Navbar() {
           {/* Login Button or User Profile */}
           <div className="hidden md:block">
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={userRef}>
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                   className="flex items-center space-x-2 text-gray-700 hover:text-green-600 transition-colors focus:outline-none"
@@ -229,7 +263,9 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/data"
+              href="https://simak.ith.ac.id/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="block px-6 py-2 text-gray-600 hover:text-gray-900"
               onClick={() => setMobileMenuOpen(false)}
             >

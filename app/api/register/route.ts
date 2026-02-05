@@ -20,7 +20,10 @@ const registerSchema = z.object({
     phone: z.string().min(1, "Nomor HP harus diisi"),
     email: z.string().email("Email tidak valid"),
     username: z.string().min(1, "Username harus diisi"),
-    password: z.string().min(8, "Password minimal 8 karakter"),
+    password: z.string()
+        .min(8, "Password minimal 8 karakter")
+        .regex(/\d/, "Password harus mengandung setidaknya satu angka")
+        .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password harus mengandung setidaknya satu simbol"),
 });
 
 export async function POST(req: Request) {

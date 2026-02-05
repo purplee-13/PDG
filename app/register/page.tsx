@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "@/lib/auth/auth-context"
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Check, User, Calendar, MapPin, Shield } from "lucide-react"
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Check, User, Calendar, MapPin, Shield, Home } from "lucide-react"
 
 interface FormData {
   // Step 1: NIK Verification
@@ -35,11 +35,12 @@ interface FormData {
   agreeTerms: boolean
 }
 
-const provinces = ["Sulawesi Selatan", "Sulawesi Utara", "Sulawesi Tengah", "Sulawesi Tenggara", "Sulawesi Barat"]
-
-const cities = ["Parepare", "Makassar", "Palopo", "Watampone"]
-const districts = ["Bacukiki", "Ujung", "Soreang", "Bacukiki Barat"]
-const villages = ["Watang Bacukiki", "Mallusetasi", "Lapadde", "Cempae"]
+const districtsData: Record<string, string[]> = {
+  "Bacukiki": ["Galung Maloang", "Lemoe", "Lompoe", "Watang Bacukiki"],
+  "Bacukiki Barat": ["Bumi Harapan", "Cappa Galung", "Kampung Baru", "Lumpue", "Sumpang Minangae", "Tiro Sompe"],
+  "Soreang": ["Bukit Harapan", "Bukit Indah", "Kampung Pisang", "Lakessi", "Ujung Baru", "Ujung Lare", "Watang Soreang"],
+  "Ujung": ["Labukkang", "Lapadde", "Mallusetasi", "Ujung Bulu", "Ujung Sabbang"]
+}
 
 export default function RegisterPage() {
   const [currentStep, setCurrentStep] = useState(1)
@@ -48,8 +49,8 @@ export default function RegisterPage() {
     name: "",
     captcha: "",
     birthDate: "",
-    province: "",
-    city: "",
+    province: "Sulawesi Selatan",
+    city: "Parepare",
     district: "",
     village: "",
     rt: "",
@@ -95,12 +96,24 @@ export default function RegisterPage() {
         setError("Semua field harus diisi")
         return
       }
+      if (!formData.email.includes("@")) {
+        setError("Email tidak valid (harus mengandung '@')")
+        return
+      }
       if (formData.password !== formData.confirmPassword) {
         setError("Password tidak cocok")
         return
       }
       if (formData.password.length < 8) {
         setError("Password minimal 8 karakter")
+        return
+      }
+
+      const hasNumber = /\d/.test(formData.password)
+      const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password)
+
+      if (!hasNumber || !hasSymbol) {
+        setError("Password harus mengandung kombinasi angka dan simbol")
         return
       }
     }
@@ -150,10 +163,10 @@ export default function RegisterPage() {
           <div key={step} className="flex items-center">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step < currentStep
-                  ? "bg-green-500 text-white"
-                  : step === currentStep
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-300 text-gray-600"
+                ? "bg-green-500 text-white"
+                : step === currentStep
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-300 text-gray-600"
                 }`}
             >
               {step < currentStep ? <Check className="w-4 h-4" /> : step}
@@ -196,18 +209,6 @@ export default function RegisterPage() {
         />
       </div>
 
-      <div className="flex space-x-4">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Masukkan Captcha*"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          />
-        </div>
-        <div className="w-24 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-          <span className="text-gray-600 font-mono">ABC123</span>
-        </div>
-      </div>
     </div>
   )
 
@@ -250,46 +251,17 @@ export default function RegisterPage() {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Provinsi*</label>
-            <select
-              value={formData.province}
-              onChange={(e) => updateFormData("province", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="">Pilih Provinsi</option>
-              {provinces.map((province) => (
-                <option key={province} value={province}>
-                  {province}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Kota/Kabupaten*</label>
-            <select
-              value={formData.city}
-              onChange={(e) => updateFormData("city", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="">Pilih Kota/Kabupaten</option>
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Kecamatan*</label>
             <select
               value={formData.district}
-              onChange={(e) => updateFormData("district", e.target.value)}
+              onChange={(e) => {
+                updateFormData("district", e.target.value)
+                updateFormData("village", "") // Reset village when district changes
+              }}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="">Pilih Kecamatan</option>
-              {districts.map((district) => (
+              {Object.keys(districtsData).sort().map((district) => (
                 <option key={district} value={district}>
                   {district}
                 </option>
@@ -302,10 +274,11 @@ export default function RegisterPage() {
             <select
               value={formData.village}
               onChange={(e) => updateFormData("village", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              disabled={!formData.district}
             >
               <option value="">Pilih Kelurahan</option>
-              {villages.map((village) => (
+              {(formData.district ? districtsData[formData.district] : []).sort().map((village) => (
                 <option key={village} value={village}>
                   {village}
                 </option>
@@ -431,7 +404,7 @@ export default function RegisterPage() {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-            <p className="text-sm text-gray-500 mt-1">Gunakan minimal 8 karakter dengan gabungan huruf atau simbol</p>
+            <p className="text-sm text-gray-500 mt-1">Gunakan minimal 8 karakter dengan gabungan huruf, angka, dan simbol</p>
           </div>
 
           <div>
@@ -613,6 +586,10 @@ export default function RegisterPage() {
       {/* Right side - Registration form */}
       <div className="flex-1 lg:flex-none lg:w-[600px] bg-white flex items-center justify-center p-8">
         <div className="w-full max-w-lg">
+          <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-green-600 mb-6 transition-colors font-medium">
+            <Home className="w-4 h-4 mr-2" />
+            Kembali ke Beranda
+          </Link>
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">

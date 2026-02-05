@@ -98,10 +98,19 @@ export default function DashboardLayout({ children, user: sessionUser }: Dashboa
     }
   }
 
+  interface NavigationItem {
+    name: string
+    href: string
+    icon: React.ComponentType<any>
+    current: boolean
+    permission: string
+    highlight?: boolean
+  }
+
   // Role-based navigation items
-  const getNavigationItems = () => {
+  const getNavigationItems = (): NavigationItem[] => {
     // 1. Dashboard (All users)
-    const items = [
+    const items: NavigationItem[] = [
       {
         name: "Dashboard",
         href: "/dashboard",

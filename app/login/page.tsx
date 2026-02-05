@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useAuth } from "@/lib/auth/auth-context"
-import { Chrome, Eye, EyeOff, QrCode } from "lucide-react"
+import { Chrome, Eye, EyeOff, QrCode, Home } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -17,13 +17,20 @@ export default function LoginPage() {
   const [isMfaRequired, setIsMfaRequired] = useState(false)
   const [mfaCode, setMfaCode] = useState("")
 
-  const { isLoading: isContextLoading, setAuthenticatedUser } = useAuth() // Keep context for now just to not break hook rules
+  const { isLoading: isContextLoading, setAuthenticatedUser } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    // Simple email validation
+    if (!email.includes("@")) {
+      setError("Email harus menyertakan '@'");
+      return;
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -116,6 +123,10 @@ export default function LoginPage() {
       {/* Right side - Login form */}
       <div className="flex-1 lg:flex-none lg:w-96 xl:w-[500px] bg-white flex items-center justify-center p-8">
         <div className="w-full max-w-md">
+          <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-green-600 mb-6 transition-colors font-medium">
+            <Home className="w-4 h-4 mr-2" />
+            Kembali ke Beranda
+          </Link>
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Masuk SSO PDG</h2>
             {!isMfaRequired && (
@@ -154,7 +165,7 @@ export default function LoginPage() {
               <>
                 <div>
                   <input
-                    type="text"
+                    type="email"
                     placeholder="Masukkan Email*"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -245,12 +256,12 @@ export default function LoginPage() {
               </div>
 
               {/* Demo credentials info */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+              {/* <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-800 font-medium mb-2">Demo Credentials:</p>
                 <p className="text-xs text-blue-700">Email: admin@parepare.go.id</p>
                 <p className="text-xs text-blue-700">Password: admin</p>
                 <p className="text-xs text-blue-700 mt-2 italic">Note: Akun ini disetup melalui /api/seed</p>
-              </div>
+              </div> */}
             </>
           )}
         </div>

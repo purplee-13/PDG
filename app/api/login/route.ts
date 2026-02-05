@@ -39,6 +39,8 @@ export async function POST(req: Request) {
 
         if (isMfaActive) {
             if (!code) {
+               
+                // Session is NOT created.
                 return NextResponse.json({
                     mfaRequired: true,
                     message: "MFA diperlukan untuk melanjutkan."
@@ -54,9 +56,6 @@ export async function POST(req: Request) {
             }
         }
 
-        // If we reach here, credentials (and MFA if active) are valid.
-        // We now call NextAuth's signIn to create the session.
-        // Note: In an API route, we need to handle the response correctly.
         try {
             const result = await signIn("credentials", {
                 email,
