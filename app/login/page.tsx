@@ -192,11 +192,11 @@ export default function LoginPage() {
                   </button>
                 </div>
 
-                <div className="text-right">
+                {/* <div className="text-right">
                   <Link href="/forgot-password" className="text-sm text-orange-500 hover:text-orange-600">
                     Lupa Kata Sandi?
                   </Link>
-                </div>
+                </div> */}
               </>
             ) : (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
