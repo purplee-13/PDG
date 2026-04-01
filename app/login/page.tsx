@@ -8,6 +8,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { markMfaPromptPendingAfterLogin } from "@/lib/auth/mfa-prompt-session"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -69,7 +70,16 @@ export default function LoginPage() {
           setAuthenticatedUser(result.user);
         }
 
-        router.push(result.redirectTo || "/dashboard")
+        const mfaEnabled =
+          result.mfaEnabled === true ||
+          result.mfaEnabled === 1 ||
+          result.mfaEnabled === "true"
+
+        const dest = result.redirectTo || "/dashboard"
+        if (!mfaEnabled) {
+          markMfaPromptPendingAfterLogin()
+        }
+        router.push(dest)
         router.refresh()
       }
     } catch (err) {

@@ -2,7 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import DashboardLayout from "@/components/dashboard/dashboard-layout"
 import DashboardOverview from "@/components/dashboard/dashboard-overview"
-import AdminDashboard from "@/components/dashboard/admin-dashboard" // We need to create this
+import AdminDashboard from "@/components/dashboard/admin-dashboard"
+import { MfaLoginPromptDialog } from "@/components/dashboard/mfa-login-prompt-dialog"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -11,10 +12,13 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
+  const mfaOn = session.user.mfaEnabled === true
+
   const role = session.user.role // This is now available thanks to our fix
 
   return (
     <DashboardLayout user={session.user}>
+      <MfaLoginPromptDialog mfaEnabled={mfaOn} />
       {role === "admin" ? (
         <AdminDashboard />
       ) : ["walikota", "kepala_dinas"].includes(role) ? (

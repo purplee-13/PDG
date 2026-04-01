@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth/auth-context"
+import { MfaPromptUrlCleaner } from "@/components/mfa-prompt-url-cleaner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -20,7 +21,10 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <MfaPromptUrlCleaner />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )

@@ -1,7 +1,7 @@
 import MfaSetup from "@/components/auth/mfa-setup"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
-import { User, Mail, Phone, MapPin, CreditCard, Shield, Edit, Calendar } from "lucide-react"
+import { User, Phone, MapPin, CreditCard, Shield, Edit } from "lucide-react"
 import Link from "next/link"
 
 export default async function ProfilePage() {
@@ -122,7 +122,7 @@ export default async function ProfilePage() {
                         </div>
 
                         {/* Security Section (MFA) */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                        <div id="mfa-setup" className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 scroll-mt-24">
                             <div className="flex items-center space-x-3 mb-6">
                                 <div className="p-2 bg-blue-100 rounded-lg">
                                     <Shield className="w-5 h-5 text-blue-600" />

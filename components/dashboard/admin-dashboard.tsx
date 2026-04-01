@@ -4,7 +4,7 @@ import { Users, Shield, Activity, Settings } from "lucide-react"
 import Link from "next/link"
 
 interface AdminDashboardProps {
-    data: DepartmentStats | undefined
+    data?: DepartmentStats
 }
 
 export default function AdminDashboard({ data }: AdminDashboardProps) {

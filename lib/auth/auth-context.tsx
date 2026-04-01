@@ -195,6 +195,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     const { signOut } = await import("next-auth/react")
+    const { clearMfaPromptSession } = await import("@/lib/auth/mfa-prompt-session")
+    clearMfaPromptSession()
     await signOut({ redirect: false })
     setUser(null)
     localStorage.removeItem("pdg-user") // Clean up legacy

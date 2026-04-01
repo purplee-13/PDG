@@ -12,6 +12,7 @@ declare module "next-auth" {
             nik?: string | null
             phone?: string | null
             address?: string | null
+            mfaEnabled?: boolean
         } & DefaultSession["user"]
     }
 
@@ -21,6 +22,7 @@ declare module "next-auth" {
         nik?: string | null
         phone?: string | null
         address?: string | null
+        mfaEnabled?: boolean
     }
 }
 
@@ -31,5 +33,6 @@ declare module "next-auth/jwt" {
         nik?: string | null
         phone?: string | null
         address?: string | null
+        mfaEnabled?: boolean
     }
 }

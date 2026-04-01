@@ -73,6 +73,7 @@ export async function login(formData: FormData) {
         return {
             success: true,
             redirectTo,
+            mfaEnabled: isMfaActive,
             user: {
                 id: existingUser.id,
                 name: existingUser.name,
@@ -82,9 +83,7 @@ export async function login(formData: FormData) {
                 nik: existingUser.nik,
                 phone: existingUser.phone,
                 address: existingUser.address,
-                permissions: [] // Permissions will be calculated on client or we can do it here if we want perfect sync, but Client AuthContext does it by role. 
-                // We'll leave permissions empty here and let AuthContext recalculate based on role if needed, 
-                // but AuthContext expects full User object. 
+                permissions: [] 
             }
         };
     } catch (error) {
@@ -96,7 +95,6 @@ export async function login(formData: FormData) {
                     return { error: "Terjadi kesalahan login." };
             }
         }
-        // In case of other errors (though redirect:false prevents NEXT_REDIRECT usually)
         throw error;
     }
 }

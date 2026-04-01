@@ -47,13 +47,18 @@ export async function POST(req: Request) {
         } = validatedData.data;
 
         // Check if user exists (by email, nik, or username)
-        const existingUser = await db.query.users.findFirst({
-            where: or(
-                eq(users.email, email),
-                eq(users.nik, nik),
-                eq(users.username, username)
-            ),
-        });
+        const existingRows = await db
+            .select()
+            .from(users)
+            .where(
+                or(
+                    eq(users.email, email),
+                    eq(users.nik, nik),
+                    eq(users.username, username)
+                )
+            )
+            .limit(1)
+        const existingUser = existingRows[0]
 
         if (existingUser) {
             let message = "User sudah terdaftar.";

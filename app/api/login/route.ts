@@ -74,6 +74,7 @@ export async function POST(req: Request) {
             return NextResponse.json({
                 success: true,
                 redirectTo: user.role === "masyarakat" ? "/" : "/dashboard",
+                mfaEnabled: isMfaActive,
                 user: {
                     id: user.id,
                     name: user.name,

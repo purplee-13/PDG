@@ -76,6 +76,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     nik: user.nik,
                     phone: user.phone,
                     address: user.address,
+                    mfaEnabled: isMfaActive,
                 };
             }
         })
@@ -94,6 +95,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                 token.address = user.address
 
+                token.mfaEnabled = (user as { mfaEnabled?: boolean }).mfaEnabled ?? false
+            }
+            // Token lama tanpa field ini harus tetap konsisten (bukan undefined)
+            if (typeof token.mfaEnabled === "undefined") {
+                token.mfaEnabled = false
             }
             return token
         },
@@ -105,7 +111,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session.user.nik = token.nik as string | null
                 session.user.phone = token.phone as string | null
                 session.user.address = token.address as string | null
-
+                session.user.mfaEnabled = token.mfaEnabled === true
             }
             return session
         },
