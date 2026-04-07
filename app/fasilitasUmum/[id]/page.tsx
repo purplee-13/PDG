@@ -69,26 +69,7 @@ export default function FacilityDetailPage() {
         )
     }
 
-    if (!user) {
-        return (
-            <div className="min-h-screen bg-slate-50">
-                <Navbar />
-                <div className="flex flex-col items-center justify-center py-40">
-                    <div className="bg-white p-10 rounded-3xl shadow-xl text-center max-w-md">
-                        <div className="text-6xl mb-6">🔒</div>
-                        <h2 className="text-3xl font-extrabold text-slate-900 mb-4">Akses Terbatas</h2>
-                        <p className="text-slate-600 mb-8">Anda harus login terlebih dahulu untuk melihat detail fasilitas ini.</p>
-                        <Link href="/login">
-                            <Button className="w-full bg-orange-600 hover:bg-orange-700 py-6 text-lg rounded-xl">
-                                Login Sekarang
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-                <Footer />
-            </div>
-        )
-    }
+
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price).replace(/\,00$/, '')
@@ -232,7 +213,7 @@ export default function FacilityDetailPage() {
                         <div className="space-y-3">
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-gray-400 uppercase">Nama Lengkap</label>
-                                <input type="text" defaultValue={user.name} className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500/20 outline-none" />
+                                <input type="text" defaultValue={user?.name || ""} className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500/20 outline-none" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-gray-400 uppercase">NIK / No. Identitas</label>
@@ -479,19 +460,38 @@ export default function FacilityDetailPage() {
                                         <p className="text-xs text-gray-500">{facility.count} {facility.unitLabel || 'paket'} terdata di sistem.</p>
                                     </div>
 
-                                    <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
-                                        <DialogTrigger asChild>
-                                            <Button
-                                                onClick={() => {
-                                                    setBookingStep("DATE_TIME")
-                                                    setSelectedPackage(null)
-                                                }}
-                                                className="w-full bg-green-600 hover:bg-green-700 py-6 text-lg rounded-xl shadow-lg shadow-green-100"
-                                            >
-                                                Pesan Sekarang
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="max-w-4xl p-0 overflow-hidden border-none rounded-3xl w-[95vw] md:w-full max-h-[95vh] flex flex-col">
+                                    {!user ? (
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button className="w-full bg-green-600 hover:bg-green-700 py-6 text-lg rounded-xl shadow-lg shadow-green-100">
+                                                    Pesan Sekarang
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="max-w-md p-10 rounded-3xl text-center border-none shadow-2xl">
+                                                <div className="text-6xl mb-6 flex justify-center">🔒</div>
+                                                <DialogTitle className="text-3xl font-extrabold text-slate-900 mb-4">Akses Terbatas</DialogTitle>
+                                                <p className="text-slate-600 mb-8">Anda harus login terlebih dahulu untuk melakukan pemesanan fasilitas ini.</p>
+                                                <Link href="/login" className="w-full">
+                                                    <Button className="w-full bg-orange-600 hover:bg-orange-700 py-6 text-lg rounded-xl">
+                                                        Login Sekarang
+                                                    </Button>
+                                                </Link>
+                                            </DialogContent>
+                                        </Dialog>
+                                    ) : (
+                                        <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
+                                            <DialogTrigger asChild>
+                                                <Button
+                                                    onClick={() => {
+                                                        setBookingStep("DATE_TIME")
+                                                        setSelectedPackage(null)
+                                                    }}
+                                                    className="w-full bg-green-600 hover:bg-green-700 py-6 text-lg rounded-xl shadow-lg shadow-green-100"
+                                                >
+                                                    Pesan Sekarang
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="max-w-4xl p-0 overflow-hidden border-none rounded-3xl w-[95vw] md:w-full max-h-[95vh] flex flex-col">
                                             <div className="flex flex-col md:flex-row h-full max-h-[85vh] md:max-h-[700px]">
                                                 {/* Sidebar Steps */}
                                                 <div className="w-full md:w-64 bg-slate-900 p-6 md:p-8 text-white flex flex-row md:flex-col items-center md:items-start shrink-0">
@@ -564,6 +564,7 @@ export default function FacilityDetailPage() {
                                             </div>
                                         </DialogContent>
                                     </Dialog>
+                                    )}
 
                                     <p className="text-xs text-center text-gray-400">
                                         Pemesanan online aman dengan enkripsi SSL.

@@ -69,28 +69,7 @@ export default function FasilitasUmumPage() {
                     </div>
                 </section>
 
-                {!user ? (
-                    /* Locked State for Guest Users */
-                    <section className="py-24 flex flex-col items-center justify-center">
-                        <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100 text-center">
-                            <Link href="/login" className="block hover:scale-110 transition-transform">
-                                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6 cursor-pointer">
-                                    <Lock className="w-10 h-10 text-orange-600" />
-                                </div>
-                            </Link>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Akses Terbatas</h2>
-                            <p className="text-gray-600 mb-8">
-                                Halaman ini hanya dapat diakses oleh pengguna yang sudah memiliki akun. Silakan login untuk melihat daftar fasilitas umum.
-                            </p>
-                            <Link href="/login" passHref>
-                                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white py-6 text-lg rounded-xl shadow-lg transition-all hover:scale-[1.02]">
-                                    Login Sekarang
-                                </Button>
-                            </Link>
-                        </div>
-                    </section>
-                ) : (
-                    /* Content for Logged-in Users */
+                    
                     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                         {/* Filters and Search */}
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
@@ -205,7 +184,6 @@ export default function FasilitasUmumPage() {
                             </div>
                         )}
                     </section>
-                )}
             </main>
 
             <Footer />
