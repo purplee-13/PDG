@@ -35,7 +35,7 @@ export async function login(formData: FormData) {
 
     if (isMfaActive) {
         if (code) {
-            // User sent code, verify it
+            // User sent code,   it
             const mfaSecret = existingUser.mfaSecret;
             if (!mfaSecret) {
                 console.log("[LOGIN ACTION] MFA Secret missing!");

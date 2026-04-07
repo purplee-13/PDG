@@ -569,7 +569,7 @@ export default function RegisterPage() {
 
           <div className="mb-6 w-[300px] h-[300px] relative">
             <Image
-              src="/images/IconLogin.png"
+              src="/images/iconLogin.png"
               alt="Icon Login"
               fill
               className="object-contain"
