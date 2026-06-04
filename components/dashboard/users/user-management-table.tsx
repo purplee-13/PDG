@@ -21,6 +21,7 @@ import {
 import { Edit2, Trash2, Search, Filter, RefreshCw, X, Users as UsersIcon, Shield } from "lucide-react"
 import { UserDialog } from "./user-dialog"
 import { deleteUser } from "@/actions/users"
+import { adminUnlockUserAccount } from "@/actions/account-recovery"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebouncedCallback } from "use-debounce"
 import { useState } from "react"
@@ -33,12 +34,15 @@ type User = {
     role: "admin" | "mayor" | "department_head" | "public" | string | null
     department: string | null
     mfaEnabled: boolean | null
+    isLocked?: boolean | null
+    mfaFailedAttempts?: number | null
 }
 
 export default function UserManagementTable({ users }: { users: User[] }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [isDeleting, setIsDeleting] = useState<string | null>(null)
+    const [isUnlocking, setIsUnlocking] = useState<string | null>(null)
 
     // Sync local state with URL params
     const currentSearch = searchParams.get("q") || ""
@@ -66,6 +70,18 @@ export default function UserManagementTable({ users }: { users: User[] }) {
     
     const clearFilters = () => {
         router.replace("/dashboard/users")
+    }
+
+    const handleUnlock = async (id: string) => {
+        if (!confirm("Buka kunci akun ini? Percobaan MFA gagal akan direset.")) return
+        setIsUnlocking(id)
+        const res = await adminUnlockUserAccount(id)
+        setIsUnlocking(null)
+        if (res?.error) {
+            alert(res.error)
+        } else {
+            router.refresh()
+        }
     }
 
     const handleDelete = async (id: string) => {
@@ -219,7 +235,8 @@ export default function UserManagementTable({ users }: { users: User[] }) {
                                     <TableHead className="min-w-[140px] font-semibold text-gray-700 py-4">Role Access</TableHead>
                                     <TableHead className="min-w-[150px] font-semibold text-gray-700 py-4">Unit Kerja</TableHead>
                                     <TableHead className="w-[120px] font-semibold text-gray-700 py-4">Status MFA</TableHead>
-                                    <TableHead className="text-right w-[120px] font-semibold text-gray-700 py-4">Actions</TableHead>
+                                    <TableHead className="w-[120px] font-semibold text-gray-700 py-4">Status Akun</TableHead>
+                                    <TableHead className="text-right w-[140px] font-semibold text-gray-700 py-4">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -263,8 +280,30 @@ export default function UserManagementTable({ users }: { users: User[] }) {
                                             </div>
                                         )}
                                     </TableCell>
+                                        <TableCell className="py-4">
+                                        {user.isLocked ? (
+                                            <Badge variant="destructive" className="text-xs">
+                                                Ditangguhkan
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="text-xs text-green-700 border-green-200">
+                                                Aktif
+                                            </Badge>
+                                        )}
+                                    </TableCell>
                                         <TableCell className="text-right py-4">
                                             <div className="flex justify-end gap-2">
+                                            {user.isLocked && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    disabled={isUnlocking === user.id}
+                                                    onClick={() => handleUnlock(user.id)}
+                                                    className="h-9 text-xs text-amber-700 border-amber-300 hover:bg-amber-50"
+                                                >
+                                                    {isUnlocking === user.id ? "..." : "Buka kunci"}
+                                                </Button>
+                                            )}
                                             <UserDialog user={user} trigger={
                                                     <Button 
                                                         variant="ghost" 

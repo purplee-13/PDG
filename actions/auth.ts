@@ -4,9 +4,7 @@ import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/lib/auth/user";
 import { generateMFASecret, verifyMFAToken } from "@/lib/auth/mfa";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { recordFailedMfaAttempt, resetMfaFailedAttempts } from "@/lib/auth/mfa-lockout";
 import bcrypt from "bcryptjs";
 
 export async function login(formData: FormData) {
@@ -22,6 +20,13 @@ export async function login(formData: FormData) {
 
     if (!existingUser || !existingUser.password || !existingUser.email) {
         return { error: "Akun tidak ditemukan atau password salah." };
+    }
+
+    if (existingUser.isLocked === true) {
+        return {
+            error: "Akun Anda ditangguhkan. Lakukan pemulihan akun untuk melanjutkan.",
+            accountLocked: true,
+        };
     }
 
     const passwordsMatch = await bcrypt.compare(password, existingUser.password);
@@ -45,10 +50,21 @@ export async function login(formData: FormData) {
             const isValid = verifyMFAToken(code, mfaSecret);
             if (!isValid) {
                 console.log("[LOGIN ACTION] Invalid MFA code");
-                return { error: "Kode MFA salah!", mfaRequired: true };
+                const lockout = await recordFailedMfaAttempt(
+                    existingUser.id,
+                    existingUser.mfaFailedAttempts ?? 0
+                );
+                return {
+                    error: lockout.message,
+                    mfaRequired: true,
+                    accountLocked: lockout.locked,
+                };
             }
 
             console.log("[LOGIN ACTION] MFA verified successfully");
+            if ((existingUser.mfaFailedAttempts ?? 0) > 0) {
+                await resetMfaFailedAttempts(existingUser.id);
+            }
         } else {
             // User has MFA but didn't send code -> Prompt MFA
             console.log("[LOGIN ACTION] MFA required but code missing in form");
@@ -57,7 +73,10 @@ export async function login(formData: FormData) {
     }
 
     try {
-        const redirectTo = existingUser.role === "masyarakat" ? "/" : "/dashboard";
+        let redirectTo = existingUser.role === "masyarakat" ? "/" : "/dashboard";
+        if (!isMfaActive) {
+            redirectTo = existingUser.role === "masyarakat" ? "/dashboard/profile" : "/dashboard/settings";
+        }
 
         const result = await signIn("credentials", {
             email,

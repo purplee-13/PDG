@@ -38,6 +38,8 @@ export const users = pgTable("user", {
     mfaEnabled: boolean("mfaEnabled").default(false),
     mfaSecret: text("mfaSecret"),
     password: text("password"),
+    mfaFailedAttempts: integer("mfaFailedAttempts").default(0),
+    isLocked: boolean("isLocked").default(false),
 })
 
 export const accounts = pgTable(

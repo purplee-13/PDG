@@ -41,12 +41,15 @@ export async function enableMfaAction(secret: string, code: string) {
         return { error: "Session Invalid (Missing ID). Silakan Logout & Login ulang." }
     }
 
-    await db.update(users)
+    await db
+        .update(users)
         .set({
-            mfaSecret: secret,
-            mfaEnabled: true
+            mfaSecret: secret.replace(/\s/g, "").toUpperCase(),
+            mfaEnabled: true,
+            mfaFailedAttempts: 0,
+            isLocked: false,
         })
-        .where(eq(users.email, session.user.email))
+        .where(eq(users.id, session.user.id))
 
     revalidatePath("/dashboard")
     return { success: true }
@@ -58,12 +61,14 @@ export async function disableMfaAction() {
         throw new Error("Unauthorized")
     }
 
-    await db.update(users)
+    await db
+        .update(users)
         .set({
             mfaSecret: null,
-            mfaEnabled: false
+            mfaEnabled: false,
+            mfaFailedAttempts: 0,
         })
-        .where(eq(users.email, session.user.email))
+        .where(eq(users.id, session.user.id))
 
     revalidatePath("/dashboard")
     return { success: true }

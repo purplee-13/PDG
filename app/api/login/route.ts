@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserByEmail } from "@/lib/auth/user";
 import { verifyMFAToken } from "@/lib/auth/mfa";
+import { recordFailedMfaAttempt, resetMfaFailedAttempts } from "@/lib/auth/mfa-lockout";
 import bcrypt from "bcryptjs";
 import { signIn } from "@/auth";
 
@@ -22,6 +23,16 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 { error: "Email atau password salah." },
                 { status: 401 }
+            );
+        }
+
+        if (user.isLocked === true) {
+            return NextResponse.json(
+                {
+                    error: "Akun Anda ditangguhkan. Lakukan pemulihan akun untuk melanjutkan.",
+                    accountLocked: true,
+                },
+                { status: 403 }
             );
         }
 
@@ -49,10 +60,19 @@ export async function POST(req: Request) {
 
             const isValid = verifyMFAToken(code, user.mfaSecret as string);
             if (!isValid) {
+                const lockout = await recordFailedMfaAttempt(user.id, user.mfaFailedAttempts ?? 0);
                 return NextResponse.json(
-                    { error: "Kode MFA salah atau sudah kadaluwarsa (berlaku 30 detik).", mfaRequired: true },
-                    { status: 401 }
+                    {
+                        error: lockout.message,
+                        mfaRequired: true,
+                        accountLocked: lockout.locked,
+                    },
+                    { status: lockout.locked ? 403 : 401 }
                 );
+            }
+
+            if ((user.mfaFailedAttempts ?? 0) > 0) {
+                await resetMfaFailedAttempts(user.id);
             }
         }
 
@@ -73,7 +93,9 @@ export async function POST(req: Request) {
 
             return NextResponse.json({
                 success: true,
-                redirectTo: user.role === "masyarakat" ? "/" : "/dashboard",
+                redirectTo: !isMfaActive 
+                    ? (user.role === "masyarakat" ? "/dashboard/profile" : "/dashboard/settings") 
+                    : (user.role === "masyarakat" ? "/" : "/dashboard"),
                 mfaEnabled: isMfaActive,
                 user: {
                     id: user.id,

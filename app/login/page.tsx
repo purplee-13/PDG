@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [isMfaRequired, setIsMfaRequired] = useState(false)
   const [mfaCode, setMfaCode] = useState("")
+  const [accountLocked, setAccountLocked] = useState(false)
 
   const { isLoading: isContextLoading, setAuthenticatedUser } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setAccountLocked(false)
 
     // Simple email validation
     if (!email.includes("@")) {
@@ -57,7 +59,10 @@ export default function LoginPage() {
 
       if (!response.ok || result?.error) {
         setError(result?.error || "Kredensial tidak valid");
-        if (result?.mfaRequired) {
+        if (result?.accountLocked) {
+          setAccountLocked(true)
+          setIsMfaRequired(false)
+        } else if (result?.mfaRequired) {
           setIsMfaRequired(true)
         }
       } else if (result?.mfaRequired) {
@@ -236,8 +241,16 @@ export default function LoginPage() {
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-2">
                 <p className="text-red-600 text-sm">{error}</p>
+                {accountLocked && (
+                  <Link
+                    href="/account-recovery"
+                    className="inline-block text-sm font-medium text-orange-600 hover:text-orange-700 underline"
+                  >
+                    Lanjut ke pemulihan akun →
+                  </Link>
+                )}
               </div>
             )}
 

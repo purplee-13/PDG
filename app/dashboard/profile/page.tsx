@@ -17,14 +17,14 @@ export default async function ProfilePage() {
     const { users } = await import("@/lib/db/schema")
     const { eq } = await import("drizzle-orm")
 
-    const dbUser = await db.query.users.findFirst({
-        where: eq(users.id, user.id as string),
-        columns: {
-            mfaEnabled: true
-        }
-    })
-
-    const isMfaEnabled = dbUser?.mfaEnabled ?? false
+    const rows = await db
+        .select({ mfaEnabled: users.mfaEnabled })
+        .from(users)
+        .where(eq(users.id, user.id as string))
+        .limit(1)
+    const raw = rows[0]?.mfaEnabled
+    const isMfaEnabled =
+        raw === true || (raw as unknown) === 1 || (raw as unknown) === "true"
 
     return (
         <div className="min-h-screen bg-gray-50 pb-12">

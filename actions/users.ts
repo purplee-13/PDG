@@ -60,7 +60,8 @@ export async function createUser(formData: FormData) {
     }
 
     // Check existing
-    const existing = await db.query.users.findFirst({ where: eq(users.email, email) })
+    const existingRows = await db.select().from(users).where(eq(users.email, email)).limit(1)
+    const existing = existingRows[0]
     if (existing) {
         return { error: "Email sudah terdaftar." }
     }

@@ -32,6 +32,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     return null;
                 }
 
+                if (user.isLocked === true) {
+                    console.log("[AUTH] Account locked");
+                    return null;
+                }
+
                 const passwordsMatch = await bcrypt.compare(
                     credentials.password as string,
                     user.password
@@ -56,11 +61,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     }
 
                     const { verifyMFAToken } = await import("@/lib/auth/mfa");
+                    const { recordFailedMfaAttempt, resetMfaFailedAttempts } = await import(
+                        "@/lib/auth/mfa-lockout"
+                    );
                     const isValid = verifyMFAToken(credentials.code as string, user.mfaSecret as string);
 
                     if (!isValid) {
                         console.log("[AUTH] BLOCKED: Invalid MFA code");
+                        await recordFailedMfaAttempt(user.id, user.mfaFailedAttempts ?? 0);
                         return null;
+                    }
+                    if ((user.mfaFailedAttempts ?? 0) > 0) {
+                        await resetMfaFailedAttempts(user.id);
                     }
                     console.log("[AUTH] MFA verified successfully");
                 }
