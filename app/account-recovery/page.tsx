@@ -3,7 +3,18 @@
 import { useState } from "react"
 import Link from "next/link"
 import { checkAccountLockStatus } from "@/actions/account-recovery"
-import { ShieldAlert, Home, Mail } from "lucide-react"
+import { ShieldAlert, Home, Mail, MessageCircle } from "lucide-react"
+
+const PDG_ADMIN_WHATSAPP = "6282188219814"
+
+function buildAdminRecoveryWhatsAppUrl(email: string) {
+  const message = `Halo Admin PDG,
+
+Akun saya dengan email ${email} telah dibekukan karena salah memasukkan kode OTP sebanyak 5 kali. Saya memohon bantuan untuk mengaktifkan kembali akun saya.
+
+Terima kasih.`
+  return `https://wa.me/${PDG_ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`
+}
 
 export default function AccountRecoveryPage() {
   const [email, setEmail] = useState("")
@@ -96,9 +107,19 @@ export default function AccountRecoveryPage() {
               gagal ({status.mfaFailedAttempts ?? 0}/5).
             </p>
             <p>
-              Untuk membuka kembali akun, hubungi administrator PDG. Admin akan memverifikasi identitas
-              Anda lalu memulihkan akun melalui menu <strong>Pemulihan Akun</strong> di dashboard admin.
+              Untuk membuka kembali akun, hubungi administrator PDG melalui WhatsApp. Admin akan
+              memverifikasi identitas Anda lalu memulihkan akun melalui menu{" "}
+              <strong>Pemulihan Akun</strong> di dashboard admin.
             </p>
+            <a
+              href={buildAdminRecoveryWhatsAppUrl(status.email ?? email)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white py-2.5 font-medium transition-colors"
+            >
+              <MessageCircle className="w-4 h-4 shrink-0" />
+              Hubungi Admin PDG via WhatsApp
+            </a>
           </div>
         )}
 
