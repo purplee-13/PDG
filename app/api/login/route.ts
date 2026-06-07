@@ -29,8 +29,9 @@ export async function POST(req: Request) {
         if (user.isLocked === true) {
             return NextResponse.json(
                 {
-                    error: "Akun Anda ditangguhkan. Lakukan pemulihan akun untuk melanjutkan.",
+                    error: "Akun Anda ditangguhkan. Silakan lakukan pemulihan akun untuk melanjutkan.",
                     accountLocked: true,
+                    recoveryUrl: "/account-recovery",
                 },
                 { status: 403 }
             );
@@ -61,13 +62,15 @@ export async function POST(req: Request) {
             const isValid = verifyMFAToken(code, user.mfaSecret as string);
             if (!isValid) {
                 const lockout = await recordFailedMfaAttempt(user.id, user.mfaFailedAttempts ?? 0);
+                const accountSuspended = lockout.ok === false && lockout.locked === true;
                 return NextResponse.json(
                     {
                         error: lockout.message,
-                        mfaRequired: true,
-                        accountLocked: lockout.locked,
+                        mfaRequired: !accountSuspended,
+                        accountLocked: accountSuspended,
+                        recoveryUrl: accountSuspended ? "/account-recovery" : undefined,
                     },
-                    { status: lockout.locked ? 403 : 401 }
+                    { status: accountSuspended ? 403 : 401 }
                 );
             }
 
@@ -93,9 +96,7 @@ export async function POST(req: Request) {
 
             return NextResponse.json({
                 success: true,
-                redirectTo: !isMfaActive 
-                    ? (user.role === "masyarakat" ? "/dashboard/profile" : "/dashboard/settings") 
-                    : (user.role === "masyarakat" ? "/" : "/dashboard"),
+                redirectTo: user.role === "masyarakat" ? "/" : "/dashboard",
                 mfaEnabled: isMfaActive,
                 user: {
                     id: user.id,

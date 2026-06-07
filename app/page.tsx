@@ -11,7 +11,6 @@ import { auth } from "@/auth"
 export default async function HomePage() {
   const session = await auth()
 
-  // Tanpa login: anggap MFA "sudah aktif" agar dialog tidak tampil. Jika login: hanya true jika MFA benar aktif.
   let mfaEnabled = true
   if (session?.user) {
     mfaEnabled = session.user.mfaEnabled === true

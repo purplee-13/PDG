@@ -73,10 +73,7 @@ export async function login(formData: FormData) {
     }
 
     try {
-        let redirectTo = existingUser.role === "masyarakat" ? "/" : "/dashboard";
-        if (!isMfaActive) {
-            redirectTo = existingUser.role === "masyarakat" ? "/dashboard/profile" : "/dashboard/settings";
-        }
+        const redirectTo = existingUser.role === "masyarakat" ? "/" : "/dashboard";
 
         const result = await signIn("credentials", {
             email,

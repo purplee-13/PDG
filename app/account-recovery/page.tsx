@@ -96,8 +96,8 @@ export default function AccountRecoveryPage() {
               gagal ({status.mfaFailedAttempts ?? 0}/5).
             </p>
             <p>
-              Untuk membuka kembali akun, hubungi administrator PDG atau petugas IT Dinas terkait.
-              Pemulihan dilakukan oleh admin setelah identitas Anda diverifikasi.
+              Untuk membuka kembali akun, hubungi administrator PDG. Admin akan memverifikasi identitas
+              Anda lalu memulihkan akun melalui menu <strong>Pemulihan Akun</strong> di dashboard admin.
             </p>
           </div>
         )}

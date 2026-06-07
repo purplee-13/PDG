@@ -10,6 +10,18 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { markMfaPromptPendingAfterLogin } from "@/lib/auth/mfa-prompt-session"
 
+const RECOVERY_PATH = "/account-recovery"
+
+function isSuspendedAccountResponse(result: {
+  accountLocked?: boolean
+  recoveryUrl?: string
+  error?: string
+}) {
+  if (result.accountLocked === true || result.recoveryUrl) return true
+  const msg = result.error ?? ""
+  return /ditangguhkan|dibekukan|pemulihan akun/i.test(msg)
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -59,7 +71,7 @@ export default function LoginPage() {
 
       if (!response.ok || result?.error) {
         setError(result?.error || "Kredensial tidak valid");
-        if (result?.accountLocked) {
+        if (isSuspendedAccountResponse(result)) {
           setAccountLocked(true)
           setIsMfaRequired(false)
         } else if (result?.mfaRequired) {
@@ -80,7 +92,9 @@ export default function LoginPage() {
           result.mfaEnabled === 1 ||
           result.mfaEnabled === "true"
 
-        const dest = result.redirectTo || "/dashboard"
+        const dest =
+          result.redirectTo ||
+          (result.user?.role === "masyarakat" ? "/" : "/dashboard")
         if (!mfaEnabled) {
           markMfaPromptPendingAfterLogin()
         }
@@ -241,15 +255,20 @@ export default function LoginPage() {
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-2">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-3">
                 <p className="text-red-600 text-sm">{error}</p>
                 {accountLocked && (
-                  <Link
-                    href="/account-recovery"
-                    className="inline-block text-sm font-medium text-orange-600 hover:text-orange-700 underline"
-                  >
-                    Lanjut ke pemulihan akun →
-                  </Link>
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-2">
+                    <p className="text-xs text-amber-900">
+                      Untuk membuka kembali akses akun, lanjutkan ke halaman pemulihan akun.
+                    </p>
+                    <Link
+                      href={RECOVERY_PATH}
+                      className="flex w-full items-center justify-center rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-orange-600"
+                    >
+                      Ke halaman pemulihan akun
+                    </Link>
+                  </div>
                 )}
               </div>
             )}

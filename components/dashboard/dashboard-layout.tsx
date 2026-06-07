@@ -19,6 +19,7 @@ import {
   ShoppingCart,
   Building2,
   TrendingUp,
+  ShieldAlert,
 } from "lucide-react"
 
 interface DashboardLayoutProps {
@@ -127,6 +128,13 @@ export default function DashboardLayout({ children, user: sessionUser }: Dashboa
         href: "/dashboard/users",
         icon: Users,
         current: pathname?.startsWith("/dashboard/users"),
+        permission: "view_users",
+      })
+      items.push({
+        name: "Pemulihan Akun",
+        href: "/dashboard/account-recovery",
+        icon: ShieldAlert,
+        current: pathname?.startsWith("/dashboard/account-recovery"),
         permission: "view_users",
       })
     }

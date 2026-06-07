@@ -18,7 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Edit2, Trash2, Search, Filter, RefreshCw, X, Users as UsersIcon, Shield } from "lucide-react"
+import { Edit2, Trash2, Search, Filter, RefreshCw, X, Users as UsersIcon, Shield, ShieldAlert } from "lucide-react"
+import Link from "next/link"
 import { UserDialog } from "./user-dialog"
 import { deleteUser } from "@/actions/users"
 import { adminUnlockUserAccount } from "@/actions/account-recovery"
@@ -121,12 +122,20 @@ export default function UserManagementTable({ users }: { users: User[] }) {
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">Kelola Pengguna</h1>
                     <p className="mt-2 text-sm text-gray-600">Kelola akses dan akun pengguna sistem dengan mudah</p>
                 </div>
-                <UserDialog trigger={
-                    <Button className="shadow-sm bg-green-600 hover:bg-green-700 text-white">
-                        <UsersIcon className="mr-2 h-4 w-4" />
-                        Tambah Pengguna
-                    </Button>
-                } />
+                <div className="flex flex-wrap gap-2">
+                    <Link href="/dashboard/account-recovery">
+                        <Button variant="outline" className="border-amber-300 text-amber-800 hover:bg-amber-50">
+                            <ShieldAlert className="mr-2 h-4 w-4" />
+                            Pemulihan Akun
+                        </Button>
+                    </Link>
+                    <UserDialog trigger={
+                        <Button className="shadow-sm bg-green-600 hover:bg-green-700 text-white">
+                            <UsersIcon className="mr-2 h-4 w-4" />
+                            Tambah Pengguna
+                        </Button>
+                    } />
+                </div>
             </div>
 
             {/* Stats Cards */}
@@ -155,14 +164,18 @@ export default function UserManagementTable({ users }: { users: User[] }) {
                 </Card>
                 <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">Admin</CardTitle>
-                        <UsersIcon className="h-4 w-4 text-red-500" />
+                        <CardTitle className="text-sm font-medium text-gray-600">Akun Ditangguhkan</CardTitle>
+                        <ShieldAlert className="h-4 w-4 text-amber-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-gray-900">
-                            {users.filter(u => u.role === "admin").length}
+                        <div className="text-2xl font-bold text-red-600">
+                            {users.filter((u) => u.isLocked).length}
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Pengguna dengan akses admin</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                            <Link href="/dashboard/account-recovery" className="text-amber-700 hover:underline">
+                                Kelola pemulihan →
+                            </Link>
+                        </p>
                     </CardContent>
                 </Card>
             </div>
@@ -301,7 +314,7 @@ export default function UserManagementTable({ users }: { users: User[] }) {
                                                     onClick={() => handleUnlock(user.id)}
                                                     className="h-9 text-xs text-amber-700 border-amber-300 hover:bg-amber-50"
                                                 >
-                                                    {isUnlocking === user.id ? "..." : "Buka kunci"}
+                                                    {isUnlocking === user.id ? "..." : "Pulihkan"}
                                                 </Button>
                                             )}
                                             <UserDialog user={user} trigger={
@@ -332,7 +345,7 @@ export default function UserManagementTable({ users }: { users: User[] }) {
                             ))}
                             {users.length === 0 && (
                                 <TableRow>
-                                        <TableCell colSpan={6} className="h-32 text-center py-8">
+                                        <TableCell colSpan={7} className="h-32 text-center py-8">
                                         <div className="flex flex-col items-center justify-center text-gray-500">
                                                 <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                                                     <Search className="h-8 w-8 text-gray-400" />
